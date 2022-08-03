@@ -8,10 +8,10 @@ public func identity<Value>(_ value: Value) -> Value { value }
 public struct Fork<LeftOutput, RightOutput> {
     
     /// The left async function of the Fork
-    public let left: () async -> LeftOutput
+    public let left: () async throws -> LeftOutput
     
     /// The right async function of the Fork
-    public let right: () async -> RightOutput
+    public let right: () async throws -> RightOutput
     
     /// Create a ``Fork`` using a single `Value` that is mapped for the left and right output function.
     /// - Parameters:
@@ -22,13 +22,13 @@ public struct Fork<LeftOutput, RightOutput> {
     ///   - rightOutput: An `async` closure that uses `RightInput` to return `RightOutput`
     public init<Value, LeftInput, RightInput>(
         value: Value,
-        leftInputMap: @escaping (Value) -> LeftInput,
-        rightInputMap: @escaping (Value) -> RightInput,
-        leftOutput: @escaping (LeftInput) async -> LeftOutput,
-        rightOutput: @escaping (RightInput) async -> RightOutput
+        leftInputMap: @escaping (Value) throws -> LeftInput,
+        rightInputMap: @escaping (Value) throws -> RightInput,
+        leftOutput: @escaping (LeftInput) async throws -> LeftOutput,
+        rightOutput: @escaping (RightInput) async throws -> RightOutput
     ) {
-        left = { await leftOutput(leftInputMap(value)) }
-        right = { await rightOutput(rightInputMap(value)) }
+        left = { try await leftOutput(try leftInputMap(value)) }
+        right = { try await rightOutput(try rightInputMap(value)) }
     }
     
     /// Create a ``Fork`` using a single `Value` that is mapped for the left and right output function.
@@ -40,13 +40,13 @@ public struct Fork<LeftOutput, RightOutput> {
     ///   - rightOutput: An `async` closure that uses `RightInput` to return `RightOutput`
     public init<Value, LeftInput, RightInput>(
         value: @escaping () -> Value,
-        leftInputMap: @escaping (Value) -> LeftInput,
-        rightInputMap: @escaping (Value) -> RightInput,
-        leftOutput: @escaping (LeftInput) async -> LeftOutput,
-        rightOutput: @escaping (RightInput) async -> RightOutput
+        leftInputMap: @escaping (Value) throws -> LeftInput,
+        rightInputMap: @escaping (Value) throws -> RightInput,
+        leftOutput: @escaping (LeftInput) async throws -> LeftOutput,
+        rightOutput: @escaping (RightInput) async throws -> RightOutput
     ) {
-        left = { await leftOutput(leftInputMap(value())) }
-        right = { await rightOutput(rightInputMap(value())) }
+        left = { try await leftOutput(try leftInputMap(value())) }
+        right = { try await rightOutput(try rightInputMap(value())) }
     }
     
     /// Create a ``Fork`` using a single `Value` that is passed into the left and right output function.
@@ -56,8 +56,8 @@ public struct Fork<LeftOutput, RightOutput> {
     ///   - rightOutput: An `async` closure that uses `RightInput` to return `RightOutput`
     public init<Value>(
         value: Value,
-        leftOutput: @escaping (Value) async -> LeftOutput,
-        rightOutput: @escaping (Value) async -> RightOutput
+        leftOutput: @escaping (Value) async throws -> LeftOutput,
+        rightOutput: @escaping (Value) async throws -> RightOutput
     ) {
         self.init(
             value: value,
@@ -75,8 +75,8 @@ public struct Fork<LeftOutput, RightOutput> {
     ///   - rightOutput: An `async` closure that uses `RightInput` to return `RightOutput`
     public init<Value>(
         value: @escaping () -> Value,
-        leftOutput: @escaping (Value) async -> LeftOutput,
-        rightOutput: @escaping (Value) async -> RightOutput
+        leftOutput: @escaping (Value) async throws -> LeftOutput,
+        rightOutput: @escaping (Value) async throws -> RightOutput
     ) {
         self.init(
             value: value,
@@ -92,8 +92,8 @@ public struct Fork<LeftOutput, RightOutput> {
     /// - Returns: An `async` closure that returns the `Output` of the Fork's left and right paths
     public func merge<Output>(
         using: @escaping (LeftOutput, RightOutput) -> Output
-    ) -> () async -> Output {
-        { using(await left(), await right()) }
+    ) -> () async throws -> Output {
+        { using(try await left(), try await right()) }
     }
     
     /// Combine the `LeftOutput` and `RightOutput` into a single `Output`
@@ -101,7 +101,7 @@ public struct Fork<LeftOutput, RightOutput> {
     /// - Returns: The `Output` of the Fork's left and right paths
     public func merged<Output>(
         using: @escaping (LeftOutput, RightOutput) -> Output
-    ) async -> Output {
-        using(await left(), await right())
+    ) async throws -> Output {
+        using(try await left(), try await right())
     }
 }

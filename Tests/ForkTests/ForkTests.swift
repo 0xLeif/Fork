@@ -9,13 +9,13 @@ final class ForkTests: XCTestCase {
             rightOutput: { "\($0)" }
         )
         
-        let leftOutput = await fork.left()
-        let rightOutput = await fork.right()
+        let leftOutput = try await fork.left()
+        let rightOutput = try await fork.right()
         
         XCTAssertEqual(leftOutput, true)
         XCTAssertEqual(rightOutput, "10")
         
-        let mergedFork: () async -> String = fork.merge(
+        let mergedFork: () async throws -> String = fork.merge(
             using: { bool, string in
                 if bool {
                     return string + string
@@ -25,7 +25,7 @@ final class ForkTests: XCTestCase {
             }
         )
         
-        let output = await mergedFork()
+        let output = try await mergedFork()
         
         XCTAssertEqual(output, "1010")
     }
