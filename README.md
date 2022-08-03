@@ -24,13 +24,13 @@ let fork = Fork(
     rightOutput: { "\($0)" }
 )
         
-let leftOutput = await fork.left()
-let rightOutput = await fork.right()
+let leftOutput = try await fork.left()
+let rightOutput = try await fork.right()
 
 XCTAssertEqual(leftOutput, true)
 XCTAssertEqual(rightOutput, "10")
         
-let mergedFork: () async -> String = fork.merge(
+let mergedFork: () async throws -> String = fork.merge(
     using: { bool, string in
         if bool {
             return string + string
@@ -62,7 +62,7 @@ let service = Fork(
     }
 )
 
-let mergedServiceFork: async () -> AppServices = service.merge(
+let mergedServiceFork: async throws () -> AppServices = service.merge(
     using: { authFork, configurationOutput in
         guard let services = authFork.merged(...) else { return }
             
