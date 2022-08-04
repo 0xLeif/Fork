@@ -91,17 +91,17 @@ public struct Fork<LeftOutput, RightOutput> {
     ///
     /// - Returns: An `async` closure that returns the `Output` of the Fork's left and right paths
     public func merge<Output>(
-        using: @escaping (LeftOutput, RightOutput) -> Output
+        using: @escaping (LeftOutput, RightOutput) async throws -> Output
     ) -> () async throws -> Output {
-        { using(try await left(), try await right()) }
+        { try await using(try await left(), try await right()) }
     }
     
     /// Combine the `LeftOutput` and `RightOutput` into a single `Output`
     ///
     /// - Returns: The `Output` of the Fork's left and right paths
     public func merged<Output>(
-        using: @escaping (LeftOutput, RightOutput) -> Output
+        using: @escaping (LeftOutput, RightOutput) async throws -> Output
     ) async throws -> Output {
-        using(try await left(), try await right())
+        try await using(try await left(), try await right())
     }
 }
