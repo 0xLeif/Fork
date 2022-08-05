@@ -13,7 +13,7 @@ public struct Fork<LeftOutput, RightOutput> {
     /// The right async function of the Fork
     public let right: () async throws -> RightOutput
     
-    /// Create a ``Fork`` using a single `Value` that is mapped for the left and right output function.
+    /// Create a ``Fork`` using a single `Value` that is mapped for the left and right output functions.
     /// - Parameters:
     ///   - value: The value to be passed into the map functions
     ///   - leftInputMap: Maps the `Value` into `LeftInput`
@@ -31,7 +31,7 @@ public struct Fork<LeftOutput, RightOutput> {
         right = { try await rightOutput(try rightInputMap(value)) }
     }
     
-    /// Create a ``Fork`` using a single `Value` that is mapped for the left and right output function.
+    /// Create a ``Fork`` using a single `Value` that is mapped for the left and right output functions.
     /// - Parameters:
     ///   - value: The value to be passed into the map functions
     ///   - leftInputMap: Maps the `Value` into `LeftInput`
@@ -49,7 +49,7 @@ public struct Fork<LeftOutput, RightOutput> {
         right = { try await rightOutput(try rightInputMap(value())) }
     }
     
-    /// Create a ``Fork`` using a single `Value` that is passed into the left and right output function.
+    /// Create a ``Fork`` using a single `Value` that is passed into the left and right output functions.
     /// - Parameters:
     ///   - value: The value to be passed into the map functions
     ///   - leftOutput: An `async` closure that uses `LeftInput` to return `LeftOutput`
@@ -68,7 +68,7 @@ public struct Fork<LeftOutput, RightOutput> {
         )
     }
     
-    /// Create a ``Fork`` using a single `Value` that is passed into the left and right output function.
+    /// Create a ``Fork`` using a single `Value` that is passed into the left and right output functions.
     /// - Parameters:
     ///   - value: The value to be passed into the map functions
     ///   - leftOutput: An `async` closure that uses `LeftInput` to return `LeftOutput`
