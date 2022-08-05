@@ -64,7 +64,7 @@ let service = Fork(
 
 let mergedServiceFork: async throws () -> AppServices = service.merge(
     using: { authFork, configurationOutput in
-        guard let services = try await authFork.merged(...) else { return }
+        let services = try await authFork.merged(...)
             
         services.logger.log(configurationOutput)
             
