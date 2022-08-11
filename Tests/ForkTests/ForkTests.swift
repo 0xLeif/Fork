@@ -20,7 +20,7 @@ final class ForkTests: XCTestCase {
                 if bool {
                     return string + string
                 }
-                    
+                
                 return string
             }
         )
@@ -77,13 +77,9 @@ final class ForkTests: XCTestCase {
         let forkedActor = ForkedActor(
             actor: TestActor(),
             leftOutput: { actor in
-                print("Left: \(await actor.value)")
-                
                 await actor.increment()
             },
             rightOutput: { actor in
-                print("Right: \(await actor.value)")
-                
                 try await actor.fork(
                     leftOutput: { await $0.increment() },
                     rightOutput: { await $0.increment() }
