@@ -15,7 +15,7 @@ Fork allows for a single input to create two separate async functions that retur
 import Fork
 ```
 
-## Basic Example
+## Fork Example
 
 ```swift
 let fork = Fork(
@@ -45,7 +45,41 @@ let output = await mergedFork()
 XCTAssertEqual(output, "1010")
 ```
 
-## Service Example
+## ForkedActor Example
+
+```swift
+actor TestActor {
+    var value: Int = 0
+    
+    func increment() {
+        value += 1
+    }
+}
+
+let forkedActor = ForkedActor(
+    actor: TestActor(),
+    leftOutput: { actor in
+        await actor.increment()
+    },
+    rightOutput: { actor in
+        try await actor.fork(
+            leftOutput: { await $0.increment() },
+            rightOutput: { await $0.increment() }
+        )
+        .act()
+    }
+)
+
+try await forkedActor.act()
+
+let actorValue = await forkedActor.actor.value
+
+XCTAssertEqual(actorValue, 3)
+```
+
+## Extra Examples
+
+### Service Example
 
 ```swift
 let service = Fork(
