@@ -9,6 +9,40 @@ Fork allows for a single input to create two separate async functions that retur
 > The word "fork" has been used to mean "to divide in branches, go separate ways" as early as the 14th century. In the software environment, the word evokes the fork system call, which causes a running process to split itself into two (almost) identical copies that (typically) diverge to perform different tasks.
 [Source](https://en.wikipedia.org/wiki/Fork_(software_development)#Etymology)
 
+## Why use Fork?
+
+Swift async-await makes it easy to write more complicated asynchronous code, but it can be difficult to parallelize multiple functions.
+
+The [Swift Book](https://docs.swift.org/swift-book/LanguageGuide/Concurrency.html#ID641) has the following example for downloading multiple images.
+
+```swift
+let firstPhoto = await downloadPhoto(named: photoNames[0])
+let secondPhoto = await downloadPhoto(named: photoNames[1])
+let thirdPhoto = await downloadPhoto(named: photoNames[2])
+
+let photos = [firstPhoto, secondPhoto, thirdPhoto]
+show(photos)
+```
+
+Now the code above is still asynchronous, but will only run one function at a time. In the example above, `firstPhoto` will be set first, then `secondPhoto`, and finally `thirdPhoto`.
+
+To run these three async functions in parallel we need to change the code to this following example.
+
+```swift
+async let firstPhoto = downloadPhoto(named: photoNames[0])
+async let secondPhoto = downloadPhoto(named: photoNames[1])
+async let thirdPhoto = downloadPhoto(named: photoNames[2])
+
+let photos = await [firstPhoto, secondPhoto, thirdPhoto]
+show(photos)
+```
+
+The above code will now download all three photos at the same time. When all the photos have been downloaded it will show the photos.
+
+This is a simple async-await example of running code in parallel in which you might not need to use Fork. More complicated examples though might require async dependencies. For example what if we needed to authenticate with a server; then use the auth token to download the photos while also fetching some data from the database. This is where Fork is useful!
+
+When using Fork or ForkedActor, both functions will be ran in parallel. Higher order forks will also be ran in parallel.
+
 ## Basic usage
 
 ```swift
@@ -78,6 +112,8 @@ XCTAssertEqual(actorValue, 3)
 ```
 
 ## Extra Examples
+
+### [Vapor ForkedActor Example](https://github.com/0xLeif/VaporForkDemo)
 
 ### Service Example
 
