@@ -1,5 +1,6 @@
+/// Using a single array and a single async function, parallelize the work for each value of the array
 public struct ForkedArray<Value, Output> {
-    enum ForkType {
+    private enum ForkType {
         case none
         case single(Value)
         case fork(Fork<ForkType, ForkType>)
@@ -7,10 +8,16 @@ public struct ForkedArray<Value, Output> {
     
     private let filter: (Value) async throws -> Bool
     private let output: (Value) async throws -> Output
+    private let fork: Fork<ForkType, ForkType>
     
+    /// The input array used to get the output
     public let array: [Value]
-    let fork: Fork<ForkType, ForkType>
     
+    /// Create a ``ForkedArray`` using a single `Array`
+    /// - Parameters:
+    ///   - array: The `Array` to be used in creating the output
+    ///   - filter: An `async` closure that determines if the value should be used or not
+    ///   - output: An `async` closure that uses the `Array.Element` as its input
     public init(
         _ array: [Value],
         filter: @escaping (Value) async throws -> Bool = { _ in true },
@@ -47,7 +54,9 @@ public struct ForkedArray<Value, Output> {
             }
         )
     }
-    
+}
+
+extension ForkedArray {
     private static func split(
         array: [Value]
     ) -> ForkType {
