@@ -113,12 +113,12 @@ public struct Fork<LeftOutput, RightOutput> {
         {
             try Task.checkCancellation()
             
-            async let leftOuput = try left()
-            async let rightOuput = try right()
+            async let leftOutput = try left()
+            async let rightOutput = try right()
             
             try Task.checkCancellation()
             
-            return try await using(leftOuput, rightOuput)
+            return try await using(leftOutput, rightOutput)
         }
     }
     
@@ -128,13 +128,11 @@ public struct Fork<LeftOutput, RightOutput> {
     public func merged<Output>(
         using: @escaping (LeftOutput, RightOutput) async throws -> Output
     ) async throws -> Output {
-        try Task.checkCancellation()
-        
-        async let leftOuput = try left()
-        async let rightOuput = try right()
-        
-        try Task.checkCancellation()
-        
-        return try await using(leftOuput, rightOuput)
+        try await merge(using: using)()
+    }
+    
+    /// Combine the `Void LeftOutput` and `Void RightOutput`
+    public func merged() async throws where LeftOutput == Void, RightOutput == Void {
+        try await merged(using: { _, _ in () })
     }
 }
