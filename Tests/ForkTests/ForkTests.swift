@@ -94,4 +94,48 @@ final class ForkTests: XCTestCase {
         
         XCTAssertEqual(actorValue, 3)
     }
+    
+    func testExample_none() async throws {
+        let photoNames: [String] = []
+        @Sendable func downloadPhoto(named: String) async -> String { named }
+        func show(_ photos: [String]) { }
+        
+        let forkedArray = ForkedArray(photoNames, output: downloadPhoto(named:))
+        let photos = try await forkedArray.output()
+        
+        XCTAssertEqual(photos, photoNames)
+    }
+    
+    func testExample_one() async throws {
+        let photoNames = ["one"]
+        @Sendable func downloadPhoto(named: String) async -> String { named }
+        func show(_ photos: [String]) { }
+        
+        let forkedArray = ForkedArray(photoNames, output: downloadPhoto(named:))
+        let photos = try await forkedArray.output()
+        
+        XCTAssertEqual(photos, photoNames)
+    }
+    
+    func testExample_two() async throws {
+        let photoNames = ["one", "two"]
+        @Sendable func downloadPhoto(named: String) async -> String { named }
+        func show(_ photos: [String]) { }
+        
+        let forkedArray = ForkedArray(photoNames, output: downloadPhoto(named:))
+        let photos = try await forkedArray.output()
+        
+        XCTAssertEqual(photos, photoNames)
+    }
+    
+    func testExample_three() async throws {
+        let photoNames = ["one", "two", "three"]
+        @Sendable func downloadPhoto(named: String) async -> String { named }
+        func show(_ photos: [String]) { }
+        
+        let forkedArray = ForkedArray(photoNames, output: downloadPhoto(named:))
+        let photos = try await forkedArray.output()
+        
+        XCTAssertEqual(photos, photoNames)
+    }
 }
