@@ -68,6 +68,23 @@ public struct Fork<LeftOutput, RightOutput> {
         )
     }
     
+    /// Create a ``Fork`` using two `async` functions
+    /// - Parameters:
+    ///   - leftOutput: An `async` closure that returns `LeftOutput`
+    ///   - rightOutput: An `async` closure that returns `RightOutput`
+    public init(
+        leftOutput: @escaping () async throws -> LeftOutput,
+        rightOutput: @escaping () async throws -> RightOutput
+    ) {
+        self.init(
+            value: (),
+            leftInputMap: identity,
+            rightInputMap: identity,
+            leftOutput: leftOutput,
+            rightOutput: rightOutput
+        )
+    }
+    
     /// Create a ``Fork`` using a single `Value` that is passed into the left and right output functions.
     /// - Parameters:
     ///   - value: The value to be passed into the map functions
