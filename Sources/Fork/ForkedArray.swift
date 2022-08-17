@@ -5,6 +5,7 @@ public struct ForkedArray<Value, Output> {
         case fork(Fork<ForkType, ForkType>)
     }
     
+    private let filter: (Value) async throws -> Bool
     private let output: (Value) async throws -> Output
     
     public let array: [Value]
@@ -12,16 +13,18 @@ public struct ForkedArray<Value, Output> {
     
     public init(
         _ array: [Value],
+        filter: @escaping (Value) async throws -> Bool = { _ in true },
         output: @escaping (Value) async throws -> Output
     ) {
         self.array = array
+        self.filter = filter
         self.output = output
         
         let forkType = ForkedArray.split(array: array)
         
         switch forkType {
         case .none:
-            self.fork = Fork(value: array, leftOutput: { _ in .none}, rightOutput: { _ in .none })
+            self.fork = Fork(value: array, leftOutput: { _ in .none }, rightOutput: { _ in .none })
         case .single(let value):
             self.fork = Fork(
                 value: value,
@@ -37,8 +40,8 @@ public struct ForkedArray<Value, Output> {
     public func output() async throws -> [Output] {
         try await fork.merged(
             using: { leftForkType, rightForkType in
-                async let leftOutput = try await ForkedArray.output(for: leftForkType, using: output)
-                async let rightOutput = try await ForkedArray.output(for: rightForkType, using: output)
+                async let leftOutput = try await ForkedArray.output(for: leftForkType, filter: filter, using: output)
+                async let rightOutput = try await ForkedArray.output(for: rightForkType, filter: filter, using: output)
                 
                 return try await leftOutput + rightOutput
             }
@@ -80,18 +83,21 @@ public struct ForkedArray<Value, Output> {
     
     private static func output(
         for type: ForkType,
+        filter: @escaping (Value) async throws -> Bool,
         using: @escaping (Value) async throws -> Output
     ) async throws -> [Output] {
         switch type {
         case .none:
             return []
         case let .single(value):
+            guard try await filter(value) else { return [] }
+            
             return [try await using(value)]
         case let .fork(fork):
             return try await fork.merged(
                 using: { leftType, rightType in
-                    async let leftOutput = try output(for: leftType, using: using)
-                    async let rightOutput = try output(for: rightType, using: using)
+                    async let leftOutput = try output(for: leftType, filter: filter, using: using)
+                    async let rightOutput = try output(for: rightType, filter: filter, using: using)
                     
                     return try await leftOutput + rightOutput
                 }
