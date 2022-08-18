@@ -2,6 +2,20 @@ import XCTest
 @testable import Fork
 
 class ForkedArrayTests: XCTestCase {
+    func testForkedArray() async throws {
+        let photoNames: [String] = (0 ... Int.random(in: 1 ..< 10)).map(\.description)
+        @Sendable func downloadPhoto(named: String) async -> String { named }
+        func show(_ photos: [String]) { }
+        
+        let forkedArray = ForkedArray(
+            photoNames,
+            map: downloadPhoto(named:)
+        )
+        let photos = try await forkedArray.output()
+        
+        XCTAssertEqual(photos, photoNames)
+    }
+    
     func testForkedArray_none() async throws {
         let photoNames: [String] = []
         @Sendable func downloadPhoto(named: String) async -> String { named }

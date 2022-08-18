@@ -20,7 +20,7 @@ public struct ForkedArray<Value, Output> {
     ///   - output: An `async` closure that uses the `Array.Element` as its input
     public init(
         _ array: [Value],
-        filter: @escaping (Value) async throws -> Bool = { _ in true },
+        filter: @escaping (Value) async throws -> Bool,
         map: @escaping (Value) async throws -> Output
     ) {
         self.array = array
@@ -43,6 +43,17 @@ public struct ForkedArray<Value, Output> {
         case .fork(let fork):
             self.fork = fork
         }
+    }
+    
+    /// Create a ``ForkedArray`` using a single `Array`
+    /// - Parameters:
+    ///   - array: The `Array` to be used in creating the output
+    ///   - output: An `async` closure that uses the `Array.Element` as its input
+    public init(
+        _ array: [Value],
+        map: @escaping (Value) async throws -> Output
+    ) {
+        self.init(array, filter: { _ in true }, map: map)
     }
     
     /// Asynchronously resolve the forked array
