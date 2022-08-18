@@ -27,11 +27,13 @@ public struct ForkedArray<Value, Output> {
         self.filter = filter
         self.output = output
         
-        let forkType = ForkedArray.split(array: array)
-        
-        switch forkType {
+        switch ForkedArray.split(array: array) {
         case .none:
-            self.fork = Fork(value: array, leftOutput: { _ in .none }, rightOutput: { _ in .none })
+            self.fork = Fork(
+                value: array,
+                leftOutput: { _ in .none },
+                rightOutput: { _ in .none }
+            )
         case .single(let value):
             self.fork = Fork(
                 value: value,
@@ -61,11 +63,12 @@ extension ForkedArray {
         array: [Value]
     ) -> ForkType {
         let count = array.count
-        
-        guard count > 0 else { return .none }
-        guard count > 1 else { return .single(array[0]) }
-        
-        if count == 2 {
+        switch count {
+        case 0:
+            return .none
+        case 1:
+            return .single(array[0])
+        case 2:
             return .fork(
                 Fork(
                     value: array,
@@ -75,19 +78,19 @@ extension ForkedArray {
                     rightOutput: ForkType.single
                 )
             )
-        }
-        
-        let midPoint = count / 2
-        
-        return .fork(
-            Fork(
-                value: array,
-                leftInputMap: { Array($0[0 ..< midPoint]) },
-                rightInputMap: { Array($0[midPoint ... count - 1]) },
-                leftOutput: split(array:),
-                rightOutput: split(array:)
+        default:
+            let midPoint = count / 2
+            
+            return .fork(
+                Fork(
+                    value: array,
+                    leftInputMap: { Array($0[0 ..< midPoint]) },
+                    rightInputMap: { Array($0[midPoint ... count - 1]) },
+                    leftOutput: split(array:),
+                    rightOutput: split(array:)
+                )
             )
-        )
+        }
     }
     
     private static func output(
