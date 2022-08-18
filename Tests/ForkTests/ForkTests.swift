@@ -138,4 +138,15 @@ final class ForkTests: XCTestCase {
         
         XCTAssertEqual(photos, photoNames)
     }
+    
+    func testExample_x() async throws {
+        let photoNames = (0 ... Int.random(in: 1 ..< 100)).map(\.description)
+        @Sendable func downloadPhoto(named: String) async -> String { named }
+        func show(_ photos: [String]) { }
+        
+        let forkedArray = ForkedArray(photoNames, output: downloadPhoto(named:))
+        let photos = try await forkedArray.output()
+        
+        XCTAssertEqual(photos, photoNames)
+    }
 }
