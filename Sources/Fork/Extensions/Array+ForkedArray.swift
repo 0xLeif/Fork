@@ -37,4 +37,11 @@ extension Array {
     ) async throws -> [Element] {
         try await fork(filter: isIncluded, map: identity).output()
     }
+    
+    /// Calls the given closure for each of the elements in the Array. This function uses ``ForkedArray`` and will be parallelized when possible.
+    public func asyncForEach(
+        _ transform: @escaping (Element) async throws -> Void
+    ) async throws {
+        _ = try await asyncMap(transform)
+    }
 }

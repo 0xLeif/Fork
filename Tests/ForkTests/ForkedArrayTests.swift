@@ -16,6 +16,10 @@ class ForkedArrayTests: XCTestCase {
         XCTAssertEqual(photos, photoNames)
     }
     
+    func testForkedArray_ForEach() async throws {
+        try await ["Hello", " ", "World", "!"].asyncForEach { print($0) }
+    }
+    
     func testForkedArray_none() async throws {
         let photoNames: [String] = []
         @Sendable func downloadPhoto(named: String) async -> String { named }
@@ -59,6 +63,16 @@ class ForkedArrayTests: XCTestCase {
     
     func testForkedArray_x() async throws {
         let photoNames = (0 ... Int.random(in: 3 ..< 100)).map(\.description)
+        @Sendable func downloadPhoto(named: String) async -> String { named }
+        
+        let forkedArray = photoNames.fork(map: downloadPhoto(named:))
+        let photos = try await forkedArray.output()
+        
+        XCTAssertEqual(photos, photoNames)
+    }
+    
+    func testForkedArray_order() async throws {
+        let photoNames = ["Hello", " ", "World", "!"]
         @Sendable func downloadPhoto(named: String) async -> String { named }
         
         let forkedArray = photoNames.fork(map: downloadPhoto(named:))
