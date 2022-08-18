@@ -111,6 +111,16 @@ let actorValue = await forkedActor.actor.value
 XCTAssertEqual(actorValue, 3)
 ```
 
+## ForkedArray Example
+
+A ForkedArray makes it easy to perform an asynchronous function on all of the elements in an Array. ForkedArray helps with the [example](#why-use-fork) above.
+
+```swift
+let forkedArray = ForkedArray(photoNames, output: downloadPhoto(named:))
+let photos = try await forkedArray.output()
+```
+
+
 ## Extra Examples
 
 ### [Vapor ForkedActor Example](https://github.com/0xLeif/VaporForkDemo)
