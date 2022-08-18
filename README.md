@@ -104,9 +104,33 @@ let forkedActor = ForkedActor(
     }
 )
 
-try await forkedActor.act()
+let actorValue = await forkedActor.act().value
 
-let actorValue = await forkedActor.actor.value
+XCTAssertEqual(actorValue, 3)
+```
+
+### ForkedActor KeyPathActor<Int> Example
+
+```swift
+let forkedActor = ForkedActor(
+    value: 0,
+    leftOutput: { actor in
+        await actor.update(to: { $0 + 1 })
+    },
+    rightOutput: { actor in
+        try await actor.fork(
+            leftOutput: { actor in
+                await actor.update(to: { $0 + 1 })
+            },
+            rightOutput: { actor in
+                await actor.update(\.self, to: { $0 + 1 })
+            }
+        )
+        .act()
+    }
+)
+
+let actorValue = try await forkedActor.act().value
 
 XCTAssertEqual(actorValue, 3)
 ```
