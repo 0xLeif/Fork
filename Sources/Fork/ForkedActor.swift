@@ -33,8 +33,35 @@ public struct ForkedActor<Value: Actor> {
         )
     }
     
+    /// Create a ``ForkedActor`` using a single value that is passed into the left and right async functions.
+    /// - Parameters:
+    ///   - value: Any value to be passed into the map functions. This value is wrapped into an `actor` using ``KeyPathActor``.
+    ///   - leftOutput: An `async` closure that uses the `actor` as its input
+    ///   - rightOutput: An `async` closure that uses the `actor` as its input
+    public init<Input>(
+        value: Input,
+        leftOutput: @escaping (_ actor: Value) async throws -> Void,
+        rightOutput: @escaping (_ actor: Value) async throws -> Void
+    ) where Value == KeyPathActor<Input> {
+        self.actor = KeyPathActor(value: value)
+        self.fork = Fork(
+            value: actor,
+            leftOutput: { actor in
+                try await leftOutput(actor)
+                
+                return actor
+            },
+            rightOutput: { actor in
+                try await rightOutput(actor)
+                
+                return actor
+            }
+        )
+    }
+    
     /// Asynchronously resolve the fork using the actor
-    public func act() async throws {
+    @discardableResult
+    public func act() async throws -> Value {
         try Task.checkCancellation()
         
         async let leftForkedTask = fork.left()
@@ -45,5 +72,7 @@ public struct ForkedActor<Value: Actor> {
         _ = try await [leftForkedTask, rightForkedTask]
         
         try Task.checkCancellation()
+        
+        return actor
     }
 }

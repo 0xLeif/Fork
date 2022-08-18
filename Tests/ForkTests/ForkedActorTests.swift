@@ -38,31 +38,25 @@ class ForkedActorTests: XCTestCase {
     }
     
     func testHigherOrderForkedActor() async throws {
-        actor TestActor {
-            var value: Int = 0
-            
-            func increment() {
-                value += 1
-            }
-        }
-        
         let forkedActor = ForkedActor(
-            actor: TestActor(),
+            value: 0,
             leftOutput: { actor in
-                await actor.increment()
+                await actor.update(to: { $0 + 1 })
             },
             rightOutput: { actor in
                 try await actor.fork(
-                    leftOutput: { await $0.increment() },
-                    rightOutput: { await $0.increment() }
+                    leftOutput: { actor in
+                        await actor.update(to: { $0 + 1 })
+                    },
+                    rightOutput: { actor in
+                        await actor.update(\.self, to: { $0 + 1 })
+                    }
                 )
                 .act()
             }
         )
         
-        try await forkedActor.act()
-        
-        let actorValue = await forkedActor.actor.value
+        let actorValue = try await forkedActor.act().value
         
         XCTAssertEqual(actorValue, 3)
     }
