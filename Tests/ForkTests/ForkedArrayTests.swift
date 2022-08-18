@@ -45,7 +45,6 @@ class ForkedArrayTests: XCTestCase {
         @Sendable func downloadPhoto(named: String) async -> String { named }
         
         let photos = try await photoNames.forked(
-            filter: { _ in true },
             map: downloadPhoto(named:)
         )
         
