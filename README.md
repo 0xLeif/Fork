@@ -1,6 +1,6 @@
 # Fork
 
-*Using a single input create two separate async functions*
+*Parallelize two or more async functions*
 
 ## What is Fork?
 
