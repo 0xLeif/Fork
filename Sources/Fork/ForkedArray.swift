@@ -104,12 +104,16 @@ extension ForkedArray {
         case let .single(value):
             guard try await filter(value) else { return [] }
             
+            try Task.checkCancellation()
+            
             return [try await using(value)]
         case let .fork(fork):
             return try await fork.merged(
                 using: { leftType, rightType in
                     async let leftOutput = try output(for: leftType, filter: filter, using: using)
                     async let rightOutput = try output(for: rightType, filter: filter, using: using)
+                    
+                    try Task.checkCancellation()
                     
                     return try await leftOutput + rightOutput
                 }
