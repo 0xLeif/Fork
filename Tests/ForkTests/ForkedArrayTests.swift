@@ -7,7 +7,7 @@ class ForkedArrayTests: XCTestCase {
         @Sendable func downloadPhoto(named: String) async -> String { named }
         func show(_ photos: [String]) { }
         
-        let forkedArray = ForkedArray(photoNames, output: downloadPhoto(named:))
+        let forkedArray = ForkedArray(photoNames, map: downloadPhoto(named:))
         let photos = try await forkedArray.output()
         
         XCTAssertEqual(photos, photoNames)
@@ -15,11 +15,9 @@ class ForkedArrayTests: XCTestCase {
     
     func testForkedArray_one() async throws {
         let photoNames = ["one"]
-        @Sendable func downloadPhoto(named: String) async -> String { named }
-        func show(_ photos: [String]) { }
+        @Sendable func isValidPhoto(named: String) async -> Bool { true }
         
-        let forkedArray = ForkedArray(photoNames, output: downloadPhoto(named:))
-        let photos = try await forkedArray.output()
+        let photos = try await photoNames.asyncFilter(isValidPhoto(named:))
         
         XCTAssertEqual(photos, photoNames)
     }
@@ -27,10 +25,11 @@ class ForkedArrayTests: XCTestCase {
     func testForkedArray_two() async throws {
         let photoNames = ["one", "two"]
         @Sendable func downloadPhoto(named: String) async -> String { named }
-        func show(_ photos: [String]) { }
         
-        let forkedArray = ForkedArray(photoNames, output: downloadPhoto(named:))
-        let photos = try await forkedArray.output()
+        let photos = try await photoNames.forked(
+            filter: { _ in true },
+            map: downloadPhoto(named:)
+        )
         
         XCTAssertEqual(photos, photoNames)
     }
@@ -38,10 +37,8 @@ class ForkedArrayTests: XCTestCase {
     func testForkedArray_three() async throws {
         let photoNames = ["one", "two", "three"]
         @Sendable func downloadPhoto(named: String) async -> String { named }
-        func show(_ photos: [String]) { }
         
-        let forkedArray = ForkedArray(photoNames, output: downloadPhoto(named:))
-        let photos = try await forkedArray.output()
+        let photos = try await photoNames.asyncMap(downloadPhoto(named:))
         
         XCTAssertEqual(photos, photoNames)
     }
@@ -49,9 +46,8 @@ class ForkedArrayTests: XCTestCase {
     func testForkedArray_x() async throws {
         let photoNames = (0 ... Int.random(in: 3 ..< 100)).map(\.description)
         @Sendable func downloadPhoto(named: String) async -> String { named }
-        func show(_ photos: [String]) { }
         
-        let forkedArray = photoNames.fork(output: downloadPhoto(named:))
+        let forkedArray = photoNames.fork(map: downloadPhoto(named:))
         let photos = try await forkedArray.output()
         
         XCTAssertEqual(photos, photoNames)
