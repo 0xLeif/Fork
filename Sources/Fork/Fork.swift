@@ -39,7 +39,7 @@ public struct Fork<LeftOutput, RightOutput> {
     ///   - leftOutput: An `async` closure that uses `LeftInput` to return `LeftOutput`
     ///   - rightOutput: An `async` closure that uses `RightInput` to return `RightOutput`
     public init<Value, LeftInput, RightInput>(
-        value: @escaping () -> Value,
+        value: @escaping () async throws -> Value,
         leftInputMap: @escaping (Value) throws -> LeftInput,
         rightInputMap: @escaping (Value) throws -> RightInput,
         leftOutput: @escaping (LeftInput) async throws -> LeftOutput,
@@ -91,7 +91,7 @@ public struct Fork<LeftOutput, RightOutput> {
     ///   - leftOutput: An `async` closure that uses `LeftInput` to return `LeftOutput`
     ///   - rightOutput: An `async` closure that uses `RightInput` to return `RightOutput`
     public init<Value>(
-        value: @escaping () -> Value,
+        value: @escaping () async throws -> Value,
         leftOutput: @escaping (Value) async throws -> LeftOutput,
         rightOutput: @escaping (Value) async throws -> RightOutput
     ) {
