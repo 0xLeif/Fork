@@ -43,19 +43,10 @@ public struct ForkedActor<Value: Actor> {
         leftOutput: @escaping (_ actor: Value) async throws -> Void,
         rightOutput: @escaping (_ actor: Value) async throws -> Void
     ) where Value == KeyPathActor<Input> {
-        self.actor = KeyPathActor(value: value)
-        self.fork = Fork(
-            value: actor,
-            leftOutput: { actor in
-                try await leftOutput(actor)
-                
-                return actor
-            },
-            rightOutput: { actor in
-                try await rightOutput(actor)
-                
-                return actor
-            }
+        self.init(
+            actor: KeyPathActor(value: value),
+            leftOutput: leftOutput,
+            rightOutput: rightOutput
         )
     }
     
