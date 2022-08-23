@@ -41,7 +41,13 @@ The above code will now download all three photos at the same time. When all the
 
 This is a simple async-await example of running code in parallel in which you might not need to use Fork. More complicated examples though might require async dependencies. For example what if we needed to authenticate with a server; then use the auth token to download the photos while also fetching some data from the database. This is where Fork is useful!
 
-When using Fork or ForkedActor, both functions will be ran in parallel. Higher order forks will also be ran in parallel.
+When using Fork, functions will be ran in parallel and higher order forks will also be ran in parallel.
+
+## Objects 
+- `Fork`: Using a single input create two separate async functions that return `LeftOutput` and `RightOutput`.
+- `ForkedActor`: Using a single actor create two separate async functions that are passed the actor.
+    - `KeyPathActor`: A generic Actor that uses KeyPaths to update and set values.
+- `ForkedArray`: Using a single array and a single async function, parallelize the work for each value of the array.
 
 ## Basic usage
 
