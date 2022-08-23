@@ -58,14 +58,12 @@ public struct ForkedArray<Value, Output> {
     
     /// Asynchronously resolve the forked array
     public func output() async throws -> [Output] {
-        try await fork.merged(
-            using: { leftForkType, rightForkType in
-                async let leftOutput = try await ForkedArray.output(for: leftForkType, isIncluded: filter, transform: map)
-                async let rightOutput = try await ForkedArray.output(for: rightForkType, isIncluded: filter, transform: map)
-                
-                return try await leftOutput + rightOutput
-            }
-        )
+        try await fork.merged { leftForkType, rightForkType in
+            async let leftOutput = try ForkedArray.output(for: leftForkType, isIncluded: filter, transform: map)
+            async let rightOutput = try ForkedArray.output(for: rightForkType, isIncluded: filter, transform: map)
+            
+            return try await leftOutput + rightOutput
+        }
     }
 }
 
