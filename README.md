@@ -154,6 +154,7 @@ let photos = try await forkedArray.output()
 ## Extra Examples
 
 ### [Vapor ForkedActor Example](https://github.com/0xLeif/VaporForkDemo)
+### [ForkedArray Pictures Example](https://github.com/0xLeif/ForkedArrayPicturesExample)
 
 ### Service Example
 
