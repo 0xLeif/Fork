@@ -70,6 +70,19 @@ class ForkedArrayTests: XCTestCase {
         XCTAssertEqual(photos, photoNames)
     }
     
+    func testForkedArrayCompactMap_x() async throws {
+        let photoNames = [Int](0 ..< 100)
+        @Sendable func asyncFilter(number: Int) async -> String? {
+            guard number.isMultiple(of: 2) else { return nil }
+            
+            return number.description
+        }
+        
+        let compactedArray = try await photoNames.asyncCompactMap(asyncFilter(number:))
+        
+        XCTAssertEqual(compactedArray.count, photoNames.count / 2)
+    }
+    
     func testForkedArray_order() async throws {
         let photoNames = ["Hello", " ", "World", "!"]
         @Sendable func downloadPhoto(named: String) async -> String { named }
