@@ -45,6 +45,13 @@ extension Array {
         try await fork(map: transform).output()
     }
     
+    /// Returns an array containing the results, that aren't nil, of mapping the given closure over the sequence’s elements.
+    public func asyncCompactMap<Output>(
+        _ transform: @escaping (Element) async throws -> Output?
+    ) async throws -> [Output] {
+        try await fork(map: transform).output().compactMap { $0 }
+    }
+    
     /// Returns an array containing only the true results from the given closure over the sequence’s elements.
     public func asyncFilter(
         _ isIncluded: @escaping (Element) async throws -> Bool
