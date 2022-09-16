@@ -1,9 +1,36 @@
 /// Using a single array and a single async function, parallelize the work for each value of the array
 public struct ForkedArray<Value, Output> {
-    private enum ForkType {
+    enum ForkType {
         case none
         case single(Value)
         case fork(Fork<ForkType, ForkType>)
+        
+        func output(
+            isIncluded: @escaping (Value) async throws -> Bool,
+            transform: @escaping (Value) async throws -> Output
+        ) async throws -> [Output] {
+            switch self {
+            case .none:
+                return []
+            case let .single(value):
+                guard try await isIncluded(value) else { return [] }
+                
+                try Task.checkCancellation()
+                
+                return [try await transform(value)]
+            case let .fork(fork):
+                return try await fork.merged(
+                    using: { leftType, rightType in
+                        async let leftOutput = try leftType.output(isIncluded: isIncluded, transform: transform)
+                        async let rightOutput = try rightType.output(isIncluded: isIncluded, transform: transform)
+                        
+                        try Task.checkCancellation()
+                        
+                        return try await leftOutput + rightOutput
+                    }
+                )
+            }
+        }
     }
     
     private let filter: (Value) async throws -> Bool
@@ -59,8 +86,8 @@ public struct ForkedArray<Value, Output> {
     /// Asynchronously resolve the forked array
     public func output() async throws -> [Output] {
         try await fork.merged { leftForkType, rightForkType in
-            async let leftOutput = try ForkedArray.output(for: leftForkType, isIncluded: filter, transform: map)
-            async let rightOutput = try ForkedArray.output(for: rightForkType, isIncluded: filter, transform: map)
+            async let leftOutput = try leftForkType.output(isIncluded: filter, transform: map)
+            async let rightOutput = try rightForkType.output(isIncluded: filter, transform: map)
             
             return try await leftOutput + rightOutput
         }
@@ -98,34 +125,6 @@ extension ForkedArray {
                     leftOutput: split(array:),
                     rightOutput: split(array:)
                 )
-            )
-        }
-    }
-    
-    private static func output(
-        for type: ForkType,
-        isIncluded: @escaping (Value) async throws -> Bool,
-        transform: @escaping (Value) async throws -> Output
-    ) async throws -> [Output] {
-        switch type {
-        case .none:
-            return []
-        case let .single(value):
-            guard try await isIncluded(value) else { return [] }
-            
-            try Task.checkCancellation()
-            
-            return [try await transform(value)]
-        case let .fork(fork):
-            return try await fork.merged(
-                using: { leftType, rightType in
-                    async let leftOutput = try output(for: leftType, isIncluded: isIncluded, transform: transform)
-                    async let rightOutput = try output(for: rightType, isIncluded: isIncluded, transform: transform)
-                    
-                    try Task.checkCancellation()
-                    
-                    return try await leftOutput + rightOutput
-                }
             )
         }
     }
