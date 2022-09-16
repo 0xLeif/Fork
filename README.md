@@ -39,7 +39,12 @@ show(photos)
 
 The above code will now download all three photos at the same time. When all the photos have been downloaded it will show the photos.
 
-This is a simple async-await example of running code in parallel in which you might not need to use Fork. More complicated examples though might require async dependencies. For example what if we needed to authenticate with a server; then use the auth token to download the photos while also fetching some data from the database. This is where Fork is useful!
+Now, using Fork we could simiplfy this to just a couple of lines!
+
+```swift
+let photos = try await photoNames.asyncMap(downloadPhoto(named:))
+show(photos)
+```
 
 When using Fork, functions will be ran in parallel and higher order forks will also be ran in parallel.
 

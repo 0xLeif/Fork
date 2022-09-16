@@ -15,7 +15,7 @@ extension Array {
     public func fork<Output>(
         map: @escaping (Element) async throws -> Output
     ) -> ForkedArray<Element, Output> {
-        fork(filter: { _ in true}, map: map)
+        fork(filter: { _ in true }, map: map)
     }
     
     /// Create a ``ForkedArray`` from the current `Array` and get the Output Array
