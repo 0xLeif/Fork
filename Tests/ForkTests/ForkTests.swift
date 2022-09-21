@@ -72,4 +72,26 @@ final class ForkTests: XCTestCase {
         .merged()
         print()
     }
+    
+    func testForkLeftVoid() async throws {
+        let expectedValue = "RIGHT"
+        let value = try await Fork(
+            leftOutput: { () },
+            rightOutput: { expectedValue }
+        )
+        .merged()
+        
+        XCTAssertEqual(value, expectedValue)
+    }
+    
+    func testForkRightVoid() async throws {
+        let expectedValue = "LEFT"
+        let value = try await Fork(
+            leftOutput: { expectedValue },
+            rightOutput: { () }
+        )
+        .merged()
+        
+        XCTAssertEqual(value, expectedValue)
+    }
 }
