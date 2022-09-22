@@ -33,6 +33,21 @@ public struct ForkedActor<Value: Actor> {
         )
     }
     
+    /// Asynchronously resolve the fork using the actor
+    @discardableResult
+    public func act() async throws -> Value {
+        try await Task.withCheckedCancellation {
+            async let leftForkedTask = fork.left()
+            async let rightForkedTask = fork.right()
+            
+            _ = try await [leftForkedTask, rightForkedTask]
+            
+            return actor
+        }
+    }
+}
+
+extension ForkedActor {
     /// Create a ``ForkedActor`` using a single value that is passed into the left and right async functions.
     /// - Parameters:
     ///   - value: Any value to be passed into the map functions. This value is wrapped into an `actor` using ``KeyPathActor``.
@@ -50,20 +65,4 @@ public struct ForkedActor<Value: Actor> {
         )
     }
     
-    /// Asynchronously resolve the fork using the actor
-    @discardableResult
-    public func act() async throws -> Value {
-        try Task.checkCancellation()
-        
-        async let leftForkedTask = fork.left()
-        async let rightForkedTask = fork.right()
-        
-        try Task.checkCancellation()
-        
-        _ = try await [leftForkedTask, rightForkedTask]
-        
-        try Task.checkCancellation()
-        
-        return actor
-    }
 }
