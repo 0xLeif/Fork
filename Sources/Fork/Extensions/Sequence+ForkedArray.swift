@@ -1,37 +1,32 @@
-extension Array {
-    /// Create a ``ForkedArray`` from the current `Array`
+extension Sequence {
+    /// Create a ``ForkedArray`` from the current `Sequence`
     public func fork<Output>(
         filter: @escaping (Element) async throws -> Bool,
         map: @escaping (Element) async throws -> Output
     ) -> ForkedArray<Element, Output> {
         ForkedArray(
-            self,
+            Array(self),
             filter: filter,
             map: map
         )
     }
     
-    /// Create a ``ForkedArray`` from the current `Array`
+    /// Create a ``ForkedArray`` from the current `Sequence`
     public func fork<Output>(
         map: @escaping (Element) async throws -> Output
     ) -> ForkedArray<Element, Output> {
         fork(filter: { _ in true }, map: map)
     }
     
-    /// Create a ``ForkedArray`` from the current `Array` and get the Output Array
+    /// Create a ``ForkedArray`` from the current `Sequence` and get the Output Array
     public func forked<Output>(
         filter: @escaping (Element) async throws -> Bool,
         map: @escaping (Element) async throws -> Output
     ) async throws -> [Output] {
-        try await ForkedArray(
-            self,
-            filter: filter,
-            map: map
-        )
-        .output()
+        try await fork(filter: filter, map: map).output()
     }
     
-    /// Create a ``ForkedArray`` from the current `Array` and get the Output Array
+    /// Create a ``ForkedArray`` from the current `Sequence` and get the Output Array
     public func forked<Output>(
         map: @escaping (Element) async throws -> Output
     ) async throws -> [Output] {
@@ -59,7 +54,7 @@ extension Array {
         try await fork(filter: isIncluded, map: identity).output()
     }
     
-    /// Calls the given closure for each of the elements in the Array. This function uses ``ForkedArray`` and will be parallelized when possible.
+    /// Calls the given closure for each of the elements in the Sequence. This function uses ``ForkedArray`` and will be parallelized when possible.
     public func asyncForEach(
         _ transform: @escaping (Element) async throws -> Void
     ) async throws {

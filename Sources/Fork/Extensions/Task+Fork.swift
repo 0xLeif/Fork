@@ -1,10 +1,3 @@
-//
-//  Task+Fork.swift
-//  
-//
-//  Created by Leif on 9/21/22.
-//
-
 extension Task where Success == Never, Failure == Never {
     /// Run the async throwing task while checking for cancellation before and after.
     @discardableResult
