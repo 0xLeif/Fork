@@ -104,7 +104,12 @@ class ForkedArrayTests: XCTestCase {
     func testForkedArrayDictionary() async throws {
         let dictionary: [String: String] = [:]
         
-        let outputArray = try await dictionary.asyncMap(identity)
+        let outputArray = try await dictionary.forked(
+            filter: { (key: String, value: String) in
+                return true
+            },
+            map: identity
+        )
         
         XCTAssert(type(of: outputArray) == [Dictionary<String, String>.Element].self)
     }
