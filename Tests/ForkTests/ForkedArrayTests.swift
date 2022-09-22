@@ -92,4 +92,25 @@ class ForkedArrayTests: XCTestCase {
         
         XCTAssertEqual(photos, photoNames)
     }
+    
+    func testForkedArraySet() async throws {
+        let set = Set(0 ..< 9)
+        
+        let outputArray = try await set.asyncMap(identity)
+        
+        XCTAssertEqual(outputArray, Array(set))
+    }
+    
+    func testForkedArrayDictionary() async throws {
+        let dictionary: [String: String] = [:]
+        
+        let outputArray = try await dictionary.forked(
+            filter: { (key: String, value: String) in
+                return true
+            },
+            map: identity
+        )
+        
+        XCTAssert(type(of: outputArray) == [Dictionary<String, String>.Element].self)
+    }
 }
