@@ -36,13 +36,8 @@ public struct ForkedActor<Value: Actor> {
     /// Asynchronously resolve the fork using the actor
     @discardableResult
     public func act() async throws -> Value {
-        try await Task.withCheckedCancellation {
-            async let leftForkedTask = fork.left()
-            async let rightForkedTask = fork.right()
-            
-            _ = try await [leftForkedTask, rightForkedTask]
-            
-            return actor
+        try await fork.merged { _, _ in
+            actor
         }
     }
 }
