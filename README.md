@@ -4,14 +4,11 @@
 
 ## What is Fork?
 
-Fork allows for a single input to create two separate async functions that return potentially different outputs. Forks can also merge their two functions into one which returns a single output.
-
-> The word "fork" has been used to mean "to divide in branches, go separate ways" as early as the 14th century. In the software environment, the word evokes the fork system call, which causes a running process to split itself into two (almost) identical copies that (typically) diverge to perform different tasks.
-[Source](https://en.wikipedia.org/wiki/Fork_(software_development)#Etymology)
+Fork is a Swift library that allows for parallelizing multiple async functions. It provides a Fork struct that takes a single input and splits it into two separate async functions that return different outputs. The two functions can then be merged into one which returns a single output.
 
 ## Why use Fork?
 
-Swift async-await makes it easy to write more complicated asynchronous code, but it can be difficult to parallelize multiple functions.
+Asynchronous programming in Swift can be made easier with the async-await syntax, but it can still be challenging to parallelize multiple functions. Fork simplifies this by allowing developers to create parallel tasks with ease.
 
 The [Swift Book](https://docs.swift.org/swift-book/LanguageGuide/Concurrency.html#ID641) has the following example for downloading multiple images.
 
@@ -160,31 +157,3 @@ let photos = try await forkedArray.output()
 
 ### [Vapor ForkedActor Example](https://github.com/0xLeif/VaporForkDemo)
 ### [ForkedArray Pictures Example](https://github.com/0xLeif/ForkedArrayPicturesExample)
-
-### Service Example
-
-```swift
-let service = Fork(
-    value: AppConfiguration(),
-    leftOutput: { configuration in
-        Fork(
-            value: AuthService(configuration),
-            leftOutput: { authService in ... },
-            rightOutput: { authService in ... }
-        )
-    },
-    rightOutput: { configuration in
-        ...
-    }
-)
-
-let mergedServiceFork: async throws () -> AppServices = service.merge(
-    using: { authFork, configurationOutput in
-        let services = try await authFork.merged(...)
-            
-        services.logger.log(configurationOutput)
-            
-        return services
-    }
-)
-```
