@@ -160,6 +160,6 @@ let photos = try await forkedArray.output()
 
 ## Swift Packages using Fork
 
-### [SwishXCAssets](https://github.com/FullQueueDeveloper/SwishXCAssets/blob/4d9be9f90ffe1783522ff5771ea19ec6fa9dce77/Sources/SwishXCAssets/AppIcon.swift#L21-L32)
+### [SwishXCAssets](https://github.com/FullQueueDeveloper/SwishXCAssets)
 
 Concurrently generates an App Icon for your iOS app from an SVG, in the accompanying XCAssets file structure. 
