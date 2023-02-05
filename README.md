@@ -155,5 +155,11 @@ let photos = try await forkedArray.output()
 
 ## Extra Examples
 
-### [Vapor ForkedActor Example](https://github.com/0xLeif/VaporForkDemo)
-### [ForkedArray Pictures Example](https://github.com/0xLeif/ForkedArrayPicturesExample)
+- [Vapor ForkedActor Example](https://github.com/0xLeif/VaporForkDemo)
+- [ForkedArray Pictures Example](https://github.com/0xLeif/ForkedArrayPicturesExample)
+
+## Swift Packages using Fork
+
+### [SwishXCAssets](https://github.com/FullQueueDeveloper/SwishXCAssets/blob/4d9be9f90ffe1783522ff5771ea19ec6fa9dce77/Sources/SwishXCAssets/AppIcon.swift#L21-L32)
+
+Concurrently generates an App Icon for your iOS app from an SVG, in the accompanying XCAssets file structure. 
