@@ -17,7 +17,7 @@ public struct ForkedArray<Value, Output> {
     /// - Parameters:
     ///   - array: The `Array` to be used in creating the output
     ///   - filter: An `async` closure that determines if the value should be used or not
-    ///   - output: An `async` closure that uses the `Array.Element` as its input
+    ///   - map: An `async` closure that uses the `Array.Element` as its input
     public init(
         _ array: [Value],
         filter: @escaping (Value) async throws -> Bool,
@@ -60,7 +60,7 @@ extension ForkedArray {
     /// Create a ``ForkedArray`` using a single `Array`
     /// - Parameters:
     ///   - array: The `Array` to be used in creating the output
-    ///   - output: An `async` closure that uses the `Array.Element` as its input
+    ///   - map: An `async` closure that uses the `Array.Element` as its input
     public init(
         _ array: [Value],
         map: @escaping (Value) async throws -> Output

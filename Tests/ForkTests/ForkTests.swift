@@ -79,7 +79,7 @@ final class ForkTests: XCTestCase {
             leftOutput: { () },
             rightOutput: { expectedValue }
         )
-        .merged()
+            .merged()
         
         XCTAssertEqual(value, expectedValue)
     }
@@ -90,8 +90,35 @@ final class ForkTests: XCTestCase {
             leftOutput: { expectedValue },
             rightOutput: { () }
         )
-        .merged()
+            .merged()
         
         XCTAssertEqual(value, expectedValue)
+    }
+    
+    func testForkCancel() async throws {
+        let fork = Fork(
+            leftOutput: {
+                try await Task.sleep(nanoseconds: 100_000_000)
+            },
+            rightOutput: {
+                try await Task.sleep(nanoseconds: 100_000_000)
+            }
+        )
+        
+        let forkedTask = Task {
+            do {
+                try await fork.merged { _, _ in
+                    XCTFail()
+                }
+            } catch is CancellationError {
+                XCTAssert(true)
+            } catch {
+                XCTFail()
+            }
+        }
+        
+        forkedTask.cancel()
+        
+        await forkedTask.value
     }
 }
