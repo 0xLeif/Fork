@@ -47,9 +47,10 @@ When using Fork, functions will be ran in parallel and higher order forks will a
 
 ## Objects 
 - `Fork`: Using a single input create two separate async functions that return `LeftOutput` and `RightOutput`.
+- `ForkedArray`: Using a single array and a single async function, parallelize the work for each value of the array.
+- `BatchedForkedArray`: Using a single array and a single async function, batch the parallelized work for each value of the array
 - `ForkedActor`: Using a single actor create two separate async functions that are passed the actor.
     - `KeyPathActor`: A generic Actor that uses KeyPaths to update and set values.
-- `ForkedArray`: Using a single array and a single async function, parallelize the work for each value of the array.
 
 ## Basic usage
 
@@ -72,20 +73,63 @@ let rightOutput = try await fork.right()
 XCTAssertEqual(leftOutput, true)
 XCTAssertEqual(rightOutput, "10")
         
-let mergedFork: () async throws -> String = fork.merge(
-    using: { bool, string in
-        if bool {
-            return string + string
-        }
-            
-        return string
+let output: String = try await fork.merged { bool, string in
+    if bool {
+        return string + string
     }
-)
+        
+    return string
+}
         
 let output = await mergedFork()
 
 XCTAssertEqual(output, "1010")
 ```
+
+## ForkedArray Example
+
+A ForkedArray makes it easy to perform an asynchronous function on all of the elements in an Array. ForkedArray helps with the [example](#why-use-fork) above.
+
+```swift
+let forkedArray = ForkedArray(photoNames, map: downloadPhoto(named:))
+let photos = try await forkedArray.output()
+```
+
+## BatchedForkedArray 
+
+The `BatchedForkedArray` allows you to efficiently parallelize and batch process an array of values using an async function. It provides methods for both resolving the parallelized array in a single output as well as streaming the batches of the resolved array.
+
+
+```swift
+let batchedForkedArray = BatchedForkedArray(photoNames, batch: 3, map: downloadPhoto(named:))
+let photos = try await forkedArray.output()
+```
+
+In the above example, we create an instance of `BatchedForkedArray` with a batch size of 3 and the downloadPhoto function as the map closure.
+
+To resolve the batched array, we use the `output()` method, which executes the downloadPhoto function on each batch of photo names in parallel. After the resolution is complete, the `photos` array will contain the downloaded photos in the order they were processed.
+
+
+```swift
+let photoNames = [Int](0 ..< 100)
+
+let batchedForkedArray = BatchedForkedArray(
+    photoNames,
+    batch: 5,
+    map: downloadPhoto(named:)
+)
+
+for try await batch in batchedForkedArray.stream() {
+    for photo in batch {
+        // Perform operations on each photo in the batch
+        print(photo)
+    }
+}
+```
+
+In this example, we create an instance of `BatchedForkedArray` with a batch size of 5 and the `downloadPhoto(named:)` function as the map closure. By using the `stream()` method, we can iterate over batches of photo names asynchronously.
+
+Within the for-await loop, each batch of photo names is processed asynchronously. We then iterate over each photo in the batch and perform operations accordingly. This allows for efficient processing of large datasets in batches while controlling the number of parallel processes running at once.
 
 ## ForkedActor Example
 
@@ -142,16 +186,6 @@ let actorValue = try await forkedActor.act().value
 
 XCTAssertEqual(actorValue, 3)
 ```
-
-## ForkedArray Example
-
-A ForkedArray makes it easy to perform an asynchronous function on all of the elements in an Array. ForkedArray helps with the [example](#why-use-fork) above.
-
-```swift
-let forkedArray = ForkedArray(photoNames, output: downloadPhoto(named:))
-let photos = try await forkedArray.output()
-```
-
 
 ## Extra Examples
 

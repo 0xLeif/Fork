@@ -59,5 +59,4 @@ extension ForkedActor {
             rightOutput: rightOutput
         )
     }
-    
 }

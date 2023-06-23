@@ -140,12 +140,12 @@ extension Fork {
     public func merged() async throws where LeftOutput == Void, RightOutput == Void {
         try await merged(using: { _, _ in () })
     }
-    
+
     /// Merge the ``Fork`` and return the `RightOutput` when `LeftOutput` is Void
     public func merged() async throws -> RightOutput where LeftOutput == Void {
         try await merged(using: { _, output in output })
     }
-    
+
     /// Merge the ``Fork`` and return the `LeftOutput` when `RightOutput` is Void
     public func merged() async throws -> LeftOutput where RightOutput == Void {
         try await merged(using: { output, _ in output })
