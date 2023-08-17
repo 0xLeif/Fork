@@ -25,7 +25,6 @@ jobs:
             -destination 'generic/platform=iOS';
           $(xcrun --find docc) process-archive \
             transform-for-static-hosting /tmp/docbuild/Build/Products/Debug-iphoneos/Fork.doccarchive \
-            --hosting-base-path Fork \
             --output-path docs;
           echo "<script>window.location.href += \"/documentation/fork\"</script>" > docs/index.html;
       - name: artifacts
