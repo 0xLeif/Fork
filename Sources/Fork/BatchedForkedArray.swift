@@ -1,8 +1,8 @@
 /// Using a single array and a single async function, batch the parallelized work for each value of the array
-public struct BatchedForkedArray<Value, Output> {
+public struct BatchedForkedArray<Value: Sendable, Output: Sendable>: Sendable {
     private let batchedArray: [[Value]]
-    private let filter: (Value) async throws -> Bool
-    private let map: (Value) async throws -> Output
+    private let filter: @Sendable (Value) async throws -> Bool
+    private let map: @Sendable (Value) async throws -> Output
 
     /// Create a ``BatchedForkedArray`` using a single `Array`
     /// - Parameters:
@@ -13,8 +13,8 @@ public struct BatchedForkedArray<Value, Output> {
     public init(
         _ array: [Value],
         batch: UInt,
-        filter: @escaping (Value) async throws -> Bool,
-        map: @escaping (Value) async throws -> Output
+        filter: @Sendable @escaping (Value) async throws -> Bool,
+        map: @Sendable @escaping (Value) async throws -> Output
     ) {
         var index: Int = 0
         let batchLimit: UInt = max(batch, 1)
@@ -81,7 +81,7 @@ extension BatchedForkedArray {
     public init(
         _ array: [Value],
         batch: UInt,
-        map: @escaping (Value) async throws -> Output
+        map: @Sendable @escaping (Value) async throws -> Output
     ) {
         self.init(array, batch: batch, filter: { _ in true }, map: map)
     }
