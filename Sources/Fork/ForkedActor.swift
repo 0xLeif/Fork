@@ -1,6 +1,6 @@
 /// Using a single actor create two separate async functions that are passed the actor.
-public struct ForkedActor<Value: Actor> {
-    
+public struct ForkedActor<Value: Actor>: Sendable {
+
     /// The `Actor` used for the fork
     public var actor: Value
     
@@ -14,8 +14,8 @@ public struct ForkedActor<Value: Actor> {
     ///   - rightOutput: An `async` closure that uses the `actor` as its input
     public init(
         actor: Value,
-        leftOutput: @escaping (_ actor: Value) async throws -> Void,
-        rightOutput: @escaping (_ actor: Value) async throws -> Void
+        leftOutput: @Sendable @escaping (_ actor: Value) async throws -> Void,
+        rightOutput: @Sendable @escaping (_ actor: Value) async throws -> Void
     ) {
         self.actor = actor
         self.fork = Fork(
@@ -48,10 +48,10 @@ extension ForkedActor {
     ///   - value: Any value to be passed into the map functions. This value is wrapped into an `actor` using ``KeyPathActor``.
     ///   - leftOutput: An `async` closure that uses the `actor` as its input
     ///   - rightOutput: An `async` closure that uses the `actor` as its input
-    public init<Input>(
+    public init<Input: Sendable>(
         value: Input,
-        leftOutput: @escaping (_ actor: Value) async throws -> Void,
-        rightOutput: @escaping (_ actor: Value) async throws -> Void
+        leftOutput: @Sendable @escaping (_ actor: Value) async throws -> Void,
+        rightOutput: @Sendable @escaping (_ actor: Value) async throws -> Void
     ) where Value == KeyPathActor<Input> {
         self.init(
             actor: KeyPathActor(value: value),

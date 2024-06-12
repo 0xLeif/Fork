@@ -32,7 +32,7 @@ final class ForkTests: XCTestCase {
     
     func testForkClosure() async throws {
         let fork = Fork(
-            value: UUID.init,
+            value: { UUID() },
             leftOutput: { $0.uuidString == "UUID" },
             rightOutput: { Array($0.uuidString.reversed().map(\.description)) }
         )
