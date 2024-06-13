@@ -22,12 +22,7 @@ let package = Package(
         .target(
             name: "Fork",
             swiftSettings: [
-                .unsafeFlags(
-                    [
-                        "-Xfrontend",
-                        "-strict-concurrency=complete"
-                    ]
-                )
+                .enableExperimentalFeature("StrictConcurrency")
             ]
         ),
         .testTarget(
