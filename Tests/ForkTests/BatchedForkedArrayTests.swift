@@ -19,7 +19,7 @@ final class BatchedForkedArrayTests: XCTestCase {
     func testBatchedForkedArrayStream_x() async throws {
         let photoNames = [Int](0 ..< 100)
 
-        let batchedForkedArray = photoNames.batchedFork(
+        let batchedForkedArray = photoNames.fork(
             batch: 5,
             map: { "\($0)" }
         )
@@ -49,7 +49,7 @@ final class BatchedForkedArrayTests: XCTestCase {
             "Hello", " ", // First batch
             "World", "!"  // Second batch
         ]
-            .asyncBatchedForEach(batch: 2) { print($0) }
+            .asyncForEach(batch: 2) { print($0) }
     }
 
     func testBatchedForkedArray_none() async throws {
@@ -67,7 +67,7 @@ final class BatchedForkedArrayTests: XCTestCase {
         let photoNames = ["one"]
         @Sendable func isValidPhoto(named: String) async -> Bool { true }
 
-        let photos = try await photoNames.asyncBatchedFilter(batch: 0, isValidPhoto(named:))
+        let photos = try await photoNames.asyncFilter(batch: 0, isValidPhoto(named:))
 
         XCTAssertEqual(photos, photoNames)
     }
@@ -76,7 +76,7 @@ final class BatchedForkedArrayTests: XCTestCase {
         let photoNames = ["one", "two"]
         @Sendable func downloadPhoto(named: String) async -> String { named }
 
-        let photos = try await photoNames.batchedForked(
+        let photos = try await photoNames.forked(
             batch: 2,
             map: downloadPhoto(named:)
         )
@@ -88,7 +88,7 @@ final class BatchedForkedArrayTests: XCTestCase {
         let photoNames = ["one", "two", "three"]
         @Sendable func downloadPhoto(named: String) async -> String { named }
 
-        let photos = try await photoNames.asyncBatchedMap(batch: 2, downloadPhoto(named:))
+        let photos = try await photoNames.asyncMap(batch: 2, downloadPhoto(named:))
         XCTAssertEqual(photos, photoNames)
     }
 
@@ -96,7 +96,7 @@ final class BatchedForkedArrayTests: XCTestCase {
         let photoNames = (0 ... Int.random(in: 3 ..< 100)).map(\.description)
         @Sendable func downloadPhoto(named: String) async -> String { named }
 
-        let forkedArray = photoNames.batchedFork(batch: 10, map: downloadPhoto(named:))
+        let forkedArray = photoNames.fork(batch: 10, map: downloadPhoto(named:))
         let photos = try await forkedArray.output()
 
         XCTAssertEqual(photos, photoNames)
@@ -110,7 +110,7 @@ final class BatchedForkedArrayTests: XCTestCase {
             return number.description
         }
 
-        let compactedArray = try await photoNames.asyncBatchedCompactMap(batch: 10, asyncFilter(number:))
+        let compactedArray = try await photoNames.asyncCompactMap(batch: 10, asyncFilter(number:))
 
         XCTAssertEqual(compactedArray.count, photoNames.count / 2)
     }
@@ -119,7 +119,7 @@ final class BatchedForkedArrayTests: XCTestCase {
         let photoNames = ["Hello", " ", "World", "!"]
         @Sendable func downloadPhoto(named: String) async -> String { named }
 
-        let forkedArray = photoNames.batchedFork(batch: 2, map: downloadPhoto(named:))
+        let forkedArray = photoNames.fork(batch: 2, map: downloadPhoto(named:))
         let photos = try await forkedArray.output()
 
         XCTAssertEqual(photos, photoNames)
@@ -128,7 +128,7 @@ final class BatchedForkedArrayTests: XCTestCase {
     func testBatchedForkedArraySet() async throws {
         let set = Set(0 ..< 9)
 
-        let outputArray = try await set.asyncBatchedMap(batch: 3, identity)
+        let outputArray = try await set.asyncMap(batch: 3, identity)
 
         XCTAssertEqual(outputArray, Array(set))
     }
@@ -136,7 +136,7 @@ final class BatchedForkedArrayTests: XCTestCase {
     func testBatchedForkedArrayDictionary() async throws {
         let dictionary: [String: String] = [:]
 
-        let outputArray = try await dictionary.batchedForked(
+        let outputArray = try await dictionary.forked(
             batch: 1,
             filter: { (key: String, value: String) in
                 return true
