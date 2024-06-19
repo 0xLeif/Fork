@@ -97,7 +97,7 @@ extension ForkedArray {
                 Fork(
                     value: array,
                     leftInputMap: { Array($0[0 ..< midPoint]) },
-                    rightInputMap: { Array($0[midPoint ... count - 1]) },
+                    rightInputMap: { Array($0[midPoint ..< count]) },
                     leftOutput: split(array:),
                     rightOutput: split(array:)
                 )
@@ -121,16 +121,14 @@ extension ForkedArray.ForkType {
                 return [try await transform(value)]
             }
         case let .fork(fork):
-            return try await fork.merged(
-                using: { leftType, rightType in
-                    try await Task.withCheckedCancellation {
-                        async let leftOutput = try leftType.output(isIncluded: isIncluded, transform: transform)
-                        async let rightOutput = try rightType.output(isIncluded: isIncluded, transform: transform)
-                        
-                        return try await leftOutput + rightOutput
-                    }
+            return try await fork.merged { leftType, rightType in
+                try await Task.withCheckedCancellation {
+                    async let leftOutput = try leftType.output(isIncluded: isIncluded, transform: transform)
+                    async let rightOutput = try rightType.output(isIncluded: isIncluded, transform: transform)
+
+                    return try await leftOutput + rightOutput
                 }
-            )
+            }
         }
     }
 }
