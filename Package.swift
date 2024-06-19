@@ -22,7 +22,8 @@ let package = Package(
         .target(
             name: "Fork",
             swiftSettings: [
-                .enableExperimentalFeature("StrictConcurrency")
+                .enableExperimentalFeature("StrictConcurrency"),
+                .unsafeFlags(["-warnings-as-errors"])
             ]
         ),
         .testTarget(
