@@ -1,18 +1,19 @@
 /// Implementation of the [Identity function](https://en.wikipedia.org/wiki/Identity_function)
-public func identity<Value>(_ value: Value) -> Value { value }
+@Sendable 
+public func identity<Value: Sendable>(_ value: Value) -> Value { value }
 
 /// # [Fork](https://en.wikipedia.org/wiki/Fork_(software_development)#Etymology)
 ///
 /// Using a single input create two separate async functions that return `LeftOutput` and `RightOutput`.
 ///
-public struct Fork<LeftOutput, RightOutput> {
-    
+public struct Fork<LeftOutput: Sendable, RightOutput: Sendable>: Sendable {
+
     /// The left async function of the Fork
-    public let left: () async throws -> LeftOutput
-    
+    public let left: @Sendable () async throws -> LeftOutput
+
     /// The right async function of the Fork
-    public let right: () async throws -> RightOutput
-    
+    public let right: @Sendable () async throws -> RightOutput
+
     /// Create a ``Fork`` using a single `Value` that is mapped for the left and right output functions.
     /// - Parameters:
     ///   - value: The value to be passed into the map functions
@@ -21,11 +22,11 @@ public struct Fork<LeftOutput, RightOutput> {
     ///   - leftOutput: An `async` closure that uses `LeftInput` to return `LeftOutput`
     ///   - rightOutput: An `async` closure that uses `RightInput` to return `RightOutput`
     public init<Value, LeftInput, RightInput>(
-        value: @escaping () async throws -> Value,
-        leftInputMap: @escaping (Value) throws -> LeftInput,
-        rightInputMap: @escaping (Value) throws -> RightInput,
-        leftOutput: @escaping (LeftInput) async throws -> LeftOutput,
-        rightOutput: @escaping (RightInput) async throws -> RightOutput
+        value: @Sendable @escaping () async throws -> Value,
+        leftInputMap: @Sendable @escaping (Value) throws -> LeftInput,
+        rightInputMap: @Sendable @escaping (Value) throws -> RightInput,
+        leftOutput: @Sendable @escaping (LeftInput) async throws -> LeftOutput,
+        rightOutput: @Sendable @escaping (RightInput) async throws -> RightOutput
     ) {
         left = { try await leftOutput(try leftInputMap(value())) }
         right = { try await rightOutput(try rightInputMap(value())) }
@@ -56,12 +57,12 @@ extension Fork {
     ///   - rightInputMap: Maps the `Value` into `RightInput`
     ///   - leftOutput: An `async` closure that uses `LeftInput` to return `LeftOutput`
     ///   - rightOutput: An `async` closure that uses `RightInput` to return `RightOutput`
-    public init<Value, LeftInput, RightInput>(
+    public init<Value: Sendable, LeftInput: Sendable, RightInput: Sendable>(
         value: Value,
-        leftInputMap: @escaping (Value) throws -> LeftInput,
-        rightInputMap: @escaping (Value) throws -> RightInput,
-        leftOutput: @escaping (LeftInput) async throws -> LeftOutput,
-        rightOutput: @escaping (RightInput) async throws -> RightOutput
+        leftInputMap: @Sendable @escaping (Value) throws -> LeftInput,
+        rightInputMap: @Sendable @escaping (Value) throws -> RightInput,
+        leftOutput: @Sendable @escaping (LeftInput) async throws -> LeftOutput,
+        rightOutput: @Sendable @escaping (RightInput) async throws -> RightOutput
     ) {
         self.init(
             value: { value },
@@ -77,10 +78,10 @@ extension Fork {
     ///   - value: The value to be passed into the map functions
     ///   - leftOutput: An `async` closure that uses `LeftInput` to return `LeftOutput`
     ///   - rightOutput: An `async` closure that uses `RightInput` to return `RightOutput`
-    public init<Value>(
+    public init<Value: Sendable>(
         value: Value,
-        leftOutput: @escaping (Value) async throws -> LeftOutput,
-        rightOutput: @escaping (Value) async throws -> RightOutput
+        leftOutput: @Sendable @escaping (Value) async throws -> LeftOutput,
+        rightOutput: @Sendable @escaping (Value) async throws -> RightOutput
     ) {
         self.init(
             value: value,
@@ -96,8 +97,8 @@ extension Fork {
     ///   - leftOutput: An `async` closure that returns `LeftOutput`
     ///   - rightOutput: An `async` closure that returns `RightOutput`
     public init(
-        leftOutput: @escaping () async throws -> LeftOutput,
-        rightOutput: @escaping () async throws -> RightOutput
+        leftOutput: @Sendable @escaping () async throws -> LeftOutput,
+        rightOutput: @Sendable @escaping () async throws -> RightOutput
     ) {
         self.init(
             value: (),
@@ -113,10 +114,10 @@ extension Fork {
     ///   - value: The value to be passed into the map functions
     ///   - leftOutput: An `async` closure that uses `LeftInput` to return `LeftOutput`
     ///   - rightOutput: An `async` closure that uses `RightInput` to return `RightOutput`
-    public init<Value>(
-        value: @escaping () async throws -> Value,
-        leftOutput: @escaping (Value) async throws -> LeftOutput,
-        rightOutput: @escaping (Value) async throws -> RightOutput
+    public init<Value: Sendable>(
+        value: @Sendable @escaping () async throws -> Value,
+        leftOutput: @Sendable @escaping (Value) async throws -> LeftOutput,
+        rightOutput: @Sendable @escaping (Value) async throws -> RightOutput
     ) {
         self.init(
             value: value,
@@ -130,8 +131,8 @@ extension Fork {
     /// Merge the ``Fork`` and combine the `LeftOutput` and `RightOutput` into a single `Output`
     ///
     /// - Returns: The `Output` of the Fork's left and right paths
-    public func merged<Output>(
-        using: @escaping (LeftOutput, RightOutput) async throws -> Output
+    public func merged<Output: Sendable>(
+        using: @Sendable @escaping (LeftOutput, RightOutput) async throws -> Output
     ) async throws -> Output {
         try await merge(using: using)()
     }
