@@ -4,7 +4,7 @@
 
 ## What is Fork?
 
-Fork is a Swift library that allows for parallelizing multiple async functions. It provides a Fork struct that takes a single input and splits it into two separate async functions that return different outputs. The two functions can then be merged into one which returns a single output.
+Fork is a Swift 6 library that allows for parallelizing multiple async functions. It provides a Fork struct that takes a single input and splits it into two separate async functions that return different outputs. The two functions can then be merged into one which returns a single output.
 
 ## Why use Fork?
 
