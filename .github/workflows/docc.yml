@@ -22,21 +22,19 @@ jobs:
       - name: docbuild
         run: >
           sudo xcode-select -s /Applications/Xcode_16.0.app;
-      - name: git checkout
-        uses: actions/checkout@v3
-      - name: docbuild
-        run: |
           xcodebuild docbuild -scheme Fork \
             -derivedDataPath /tmp/docbuild \
             -destination 'generic/platform=iOS';
           $(xcrun --find docc) process-archive \
             transform-for-static-hosting /tmp/docbuild/Build/Products/Debug-iphoneos/Fork.doccarchive \
-            --output-path docs;
-          echo "<script>window.location.href += \"/documentation/fork\"</script>" > docs/index.html;
+            --output-path docs \
+            --hosting-base-path 'Fork';
+          echo "<script>window.location.href +=
+          \"/documentation/fork\"</script>" > docs/index.html;
       - name: artifacts
         uses: actions/upload-pages-artifact@v1
         with:
-          path: 'docs'
+          path: docs
       - name: deploy
         id: deployment
         uses: actions/deploy-pages@v1
