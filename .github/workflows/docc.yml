@@ -32,7 +32,7 @@ jobs:
           echo "<script>window.location.href +=
           \"/documentation/fork\"</script>" > docs/index.html;
       - name: artifacts
-        uses: actions/upload-pages-artifact@v1
+        uses: actions/upload-pages-artifact@v4
         with:
           path: docs
       - name: deploy
