@@ -57,7 +57,29 @@ class ForkedActorTests: XCTestCase {
         )
         
         let actorValue = try await forkedActor.act().value
-        
+
         XCTAssertEqual(actorValue, 3)
+    }
+
+    func testActorForkExtension() async throws {
+        actor Counter {
+            var count: Int = 0
+
+            func increment() {
+                count += 1
+            }
+        }
+
+        let counter = Counter()
+
+        let forked = await counter.fork(
+            leftOutput: { actor in await actor.increment() },
+            rightOutput: { actor in await actor.increment() }
+        )
+
+        let result = try await forked.act()
+        let finalCount = await result.count
+
+        XCTAssertEqual(finalCount, 2)
     }
 }
