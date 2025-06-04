@@ -6,6 +6,16 @@
 
 Fork is a Swift 6 library that allows for parallelizing multiple async functions. It provides a Fork struct that takes a single input and splits it into two separate async functions that return different outputs. The two functions can then be merged into one which returns a single output.
 
+## Installation
+
+Add `Fork` to your `Package.swift` dependencies:
+
+```swift
+.package(url: "https://github.com/0xLeif/Fork.git", from: "1.0.0")
+```
+
+Then include `"Fork"` in the dependencies of any target that needs it.
+
 ## Why use Fork?
 
 Asynchronous programming in Swift can be made easier with the async-await syntax, but it can still be challenging to parallelize multiple functions. Fork simplifies this by allowing developers to create parallel tasks with ease.
@@ -36,14 +46,14 @@ show(photos)
 
 The above code will now download all three photos at the same time. When all the photos have been downloaded it will show the photos.
 
-Now, using Fork we could simiplfy this to just a couple of lines!
+Now, using Fork we could simplify this to just a couple of lines!
 
 ```swift
 let photos = try await photoNames.asyncMap(downloadPhoto(named:))
 show(photos)
 ```
 
-When using Fork, functions will be ran in parallel and higher order forks will also be ran in parallel.
+When using Fork, functions will run in parallel and higher order forks will also run in parallel.
 
 ## Objects 
 - `Fork`: Using a single input create two separate async functions that return `LeftOutput` and `RightOutput`.

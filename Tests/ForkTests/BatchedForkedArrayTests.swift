@@ -29,6 +29,21 @@ final class BatchedForkedArrayTests: XCTestCase {
         }
     }
 
+    func testBatchedForkedArray_filter() async throws {
+        let numbers = [Int](0 ..< 10)
+
+        let batchedForkedArray = BatchedForkedArray(
+            numbers,
+            batch: 3,
+            filter: { $0.isMultiple(of: 2) },
+            map: { $0 }
+        )
+
+        let output = try await batchedForkedArray.output()
+
+        XCTAssertEqual(output, numbers.filter { $0.isMultiple(of: 2) })
+    }
+
     func testBatchedForkedArray() async throws {
         let photoNames: [String] = (0 ... Int.random(in: 1 ..< 10)).map(\.description)
         @Sendable func downloadPhoto(named: String) async -> String { named }
