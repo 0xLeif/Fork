@@ -11,7 +11,7 @@ Fork is a Swift 6 library that allows for parallelizing multiple async functions
 Add `Fork` to your `Package.swift` dependencies:
 
 ```swift
-.package(url: "https://github.com/0xLeif/Fork.git", from: "1.0.0")
+.package(url: "https://github.com/0xLeif/Fork.git", from: "2.0.0")
 ```
 
 Then include `"Fork"` in the dependencies of any target that needs it.
