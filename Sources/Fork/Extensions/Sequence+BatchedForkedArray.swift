@@ -27,7 +27,7 @@ extension Sequence where Element: Sendable {
         filter: @Sendable @escaping (Element) async throws -> Bool,
         map: @Sendable @escaping (Element) async throws -> Output
     ) async throws -> [Output] {
-        try await fork(filter: filter, map: map).output()
+        try await fork(batch: batch, filter: filter, map: map).output()
     }
 
     /// Create a ``BatchedForkedArray`` from the current `Sequence` and get the Output Array
