@@ -117,11 +117,9 @@ extension ForkedArray.ForkType {
         case .none:
             return []
         case let .single(value):
-            return try await Task.withCheckedCancellation {
-                guard try await isIncluded(value) else { return [] }
-
-                return [try await transform(value)]
-            }
+            guard try await isIncluded(value) else { return [] }
+            try Task.checkCancellation()
+            return [try await transform(value)]
         case let .fork(fork):
             return try await fork.merged { leftType, rightType in
                 try await Task.withCheckedCancellation {

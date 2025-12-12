@@ -58,9 +58,11 @@ final class ForkCancellationTests: XCTestCase, @unchecked Sendable {
 
     // MARK: - ForkedArray Cancellation Tests
 
-    // Note: testForkedArray_cancelMidProcessing and testForkedArray_verifyCancellationPropagates
-    // removed - ForkedArray doesn't fully propagate cancellation to child tasks.
-    // The library uses Task.withCheckedCancellation in some places but not consistently.
+    // Note: ForkedArray now has improved cancellation support with Task.checkCancellation()
+    // calls at key points in output() and ForkType.output(). Cancellation is checked:
+    // - At the start of output() and ForkType.output()
+    // - Between filter (isIncluded) and map (transform) operations
+    // This enables cooperative cancellation at natural boundaries in the processing.
 
     // MARK: - BatchedForkedArray Cancellation Tests
 

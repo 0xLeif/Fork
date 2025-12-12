@@ -1,31 +1,6 @@
 import XCTest
 @testable import Fork
 
-// MARK: - Test Timeout Helper
-
-private struct RaceTestTimeoutError: Error, CustomStringConvertible {
-    let seconds: TimeInterval
-    var description: String { "Test timed out after \(seconds) seconds" }
-}
-
-private func withRaceTestTimeout<T: Sendable>(
-    seconds: TimeInterval = 30,
-    operation: @Sendable @escaping () async throws -> T
-) async throws -> T {
-    try await withThrowingTaskGroup(of: T.self) { group in
-        group.addTask {
-            try await operation()
-        }
-        group.addTask {
-            try await Task.sleep(for: .seconds(seconds))
-            throw RaceTestTimeoutError(seconds: seconds)
-        }
-        let result = try await group.next()!
-        group.cancelAll()
-        return result
-    }
-}
-
 /// Tests to verify race condition safety in Fork operations
 final class ForkRaceConditionTests: XCTestCase, @unchecked Sendable {
 
@@ -126,7 +101,7 @@ final class ForkRaceConditionTests: XCTestCase, @unchecked Sendable {
     // MARK: - KeyPathActor Race Condition Tests
 
     func testKeyPathActor_concurrentUpdates() async throws {
-        try await withRaceTestTimeout(seconds: 30) {
+        try await withTestTimeout(seconds: 30) {
             struct State: Sendable {
                 var counter: Int = 0
                 var name: String = ""
@@ -162,7 +137,7 @@ final class ForkRaceConditionTests: XCTestCase, @unchecked Sendable {
     // MARK: - BatchedForkedArray Concurrent Access Tests
 
     func testBatchedForkedArray_concurrentStreamAndOutput() async throws {
-        try await withRaceTestTimeout(seconds: 30) {
+        try await withTestTimeout(seconds: 30) {
             let array = Array(0..<100)
             let batchedArray = array.fork(batch: 10) { $0 * 2 }
 
@@ -213,7 +188,7 @@ final class ForkRaceConditionTests: XCTestCase, @unchecked Sendable {
     // MARK: - High Contention Tests
 
     func testFork_highContentionScenario() async throws {
-        try await withRaceTestTimeout(seconds: 30) {
+        try await withTestTimeout(seconds: 30) {
             actor SharedResource {
                 var accessCount = 0
                 var maxConcurrent = 0
