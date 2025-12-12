@@ -59,14 +59,21 @@ public struct BatchedForkedArray<Value: Sendable, Output: Sendable>: Sendable {
     /// - Returns: An AsyncThrowingStream object that yields batches of the resolved array
     public func stream() -> AsyncThrowingStream<[Output], Error> {
         AsyncThrowingStream { continuation in
-            Task {
-                for batch in batchedArray {
-                    let batchedValues = try await batch.asyncFilter(filter).asyncMap(map)
-
-                    continuation.yield(batchedValues)
+            let task = Task {
+                do {
+                    for batch in batchedArray {
+                        try Task.checkCancellation()
+                        let batchedValues = try await batch.asyncFilter(filter).asyncMap(map)
+                        continuation.yield(batchedValues)
+                    }
+                    continuation.finish()
+                } catch {
+                    continuation.finish(throwing: error)
                 }
+            }
 
-                continuation.finish()
+            continuation.onTermination = { _ in
+                task.cancel()
             }
         }
     }

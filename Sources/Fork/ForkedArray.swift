@@ -47,10 +47,11 @@ public struct ForkedArray<Value: Sendable, Output: Sendable>: Sendable {
     
     /// Asynchronously resolve the forked array
     public func output() async throws -> [Output] {
-        try await fork.merged { leftForkType, rightForkType in
+        try Task.checkCancellation()
+        return try await fork.merged { leftForkType, rightForkType in
             async let leftOutput = try leftForkType.output(isIncluded: filter, transform: map)
             async let rightOutput = try rightForkType.output(isIncluded: filter, transform: map)
-            
+
             return try await leftOutput + rightOutput
         }
     }
@@ -111,13 +112,14 @@ extension ForkedArray.ForkType {
         isIncluded: @Sendable @escaping (Value) async throws -> Bool,
         transform: @Sendable @escaping (Value) async throws -> Output
     ) async throws -> [Output] {
+        try Task.checkCancellation()
         switch self {
         case .none:
             return []
         case let .single(value):
             return try await Task.withCheckedCancellation {
                 guard try await isIncluded(value) else { return [] }
-                
+
                 return [try await transform(value)]
             }
         case let .fork(fork):
