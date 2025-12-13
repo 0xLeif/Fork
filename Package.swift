@@ -20,11 +20,17 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "Fork"
+            name: "Fork",
+            swiftSettings: [
+                .enableExperimentalFeature("StrictConcurrency")
+            ]
         ),
         .testTarget(
             name: "ForkTests",
-            dependencies: ["Fork"]
+            dependencies: ["Fork"],
+            swiftSettings: [
+                .enableExperimentalFeature("StrictConcurrency")
+            ]
         )
     ]
 )
