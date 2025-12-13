@@ -24,9 +24,9 @@ jobs:
           sudo xcode-select -s /Applications/Xcode_16.0.app;
           xcodebuild docbuild -scheme Fork \
             -derivedDataPath /tmp/docbuild \
-            -destination 'generic/platform=iOS';
+            -destination 'generic/platform=macOS';
           $(xcrun --find docc) process-archive \
-            transform-for-static-hosting /tmp/docbuild/Build/Products/Debug-iphoneos/Fork.doccarchive \
+            transform-for-static-hosting /tmp/docbuild/Build/Products/Debug/Fork.doccarchive \
             --output-path docs \
             --hosting-base-path 'Fork';
           echo "<script>window.location.href +=
