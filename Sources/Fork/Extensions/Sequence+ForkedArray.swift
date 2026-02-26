@@ -60,11 +60,9 @@ extension Sequence where Element: Sendable {
     ) async throws {
         _ = try await concurrentMap(transform)
     }
-}
 
-// MARK: - Deprecated Aliases
+    // MARK: - Deprecated Aliases
 
-extension Sequence where Element: Sendable {
     @available(*, deprecated, renamed: "concurrentMap")
     public func asyncMap<Output: Sendable>(
         _ transform: @Sendable @escaping (Element) async throws -> Output
