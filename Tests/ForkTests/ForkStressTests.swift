@@ -8,7 +8,7 @@ final class ForkStressTests: XCTestCase, @unchecked Sendable {
 
     func testForkedArray_largeArray_1000() async throws {
         let array = Array(0..<1_000)
-        let result = try await array.asyncMap { $0 * 2 }
+        let result = try await array.concurrentMap { $0 * 2 }
 
         XCTAssertEqual(result.count, 1_000)
         XCTAssertEqual(result[0], 0)
@@ -22,7 +22,7 @@ final class ForkStressTests: XCTestCase, @unchecked Sendable {
 
     func testForkedArray_largeArray_10000() async throws {
         let array = Array(0..<10_000)
-        let result = try await array.asyncMap { $0 * 2 }
+        let result = try await array.concurrentMap { $0 * 2 }
 
         XCTAssertEqual(result.count, 10_000)
         XCTAssertEqual(result[0], 0)
@@ -37,7 +37,7 @@ final class ForkStressTests: XCTestCase, @unchecked Sendable {
     func testForkedArray_veryLargeArray_100000() async throws {
         try await withTestTimeout(seconds: 60) {
             let array = Array(0..<100_000)
-            let result = try await array.asyncMap { $0 * 2 }
+            let result = try await array.concurrentMap { $0 * 2 }
 
             XCTAssertEqual(result.count, 100_000)
             XCTAssertEqual(result[0], 0)
@@ -56,7 +56,7 @@ final class ForkStressTests: XCTestCase, @unchecked Sendable {
         try await withTestTimeout(seconds: 60) {
             // 10,000 elements with batch size 1 = sequential processing (one batch per element)
             let array = Array(0..<10_000)
-            let result = try await array.asyncMap(batch: 1) { $0 * 2 }
+            let result = try await array.concurrentMap(batch: 1) { $0 * 2 }
 
             XCTAssertEqual(result.count, 10_000)
             XCTAssertEqual(result[0], 0)
@@ -67,7 +67,7 @@ final class ForkStressTests: XCTestCase, @unchecked Sendable {
     func testBatchedForkedArray_largeBatches() async throws {
         // 1,000 elements with batch size 1000 = single batch
         let array = Array(0..<1_000)
-        let result = try await array.asyncMap(batch: 1000) { $0 * 2 }
+        let result = try await array.concurrentMap(batch: 1000) { $0 * 2 }
 
         XCTAssertEqual(result.count, 1_000)
         for (index, value) in result.enumerated() {
@@ -192,7 +192,7 @@ final class ForkStressTests: XCTestCase, @unchecked Sendable {
     func testForkedArray_orderPreservationLargeArray() async throws {
         try await withTestTimeout(seconds: 30) {
             let array = Array(0..<10_000)
-            let result = try await array.asyncMap { $0 }
+            let result = try await array.concurrentMap { $0 }
 
             // Verify strict order preservation
             for (index, value) in result.enumerated() {
@@ -204,7 +204,7 @@ final class ForkStressTests: XCTestCase, @unchecked Sendable {
     func testBatchedForkedArray_orderPreservationLargeArray() async throws {
         try await withTestTimeout(seconds: 30) {
             let array = Array(0..<10_000)
-            let result = try await array.asyncMap(batch: 100) { $0 }
+            let result = try await array.concurrentMap(batch: 100) { $0 }
 
             // Verify strict order preservation
             for (index, value) in result.enumerated() {

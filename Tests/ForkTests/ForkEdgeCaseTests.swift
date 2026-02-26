@@ -10,16 +10,16 @@ final class ForkEdgeCaseTests: XCTestCase, @unchecked Sendable {
         let array = [42]
 
         // Test with various batch sizes
-        let result1 = try await array.asyncMap(batch: 0) { $0 * 2 }
+        let result1 = try await array.concurrentMap(batch: 0) { $0 * 2 }
         XCTAssertEqual(result1, [84])
 
-        let result2 = try await array.asyncMap(batch: 1) { $0 * 2 }
+        let result2 = try await array.concurrentMap(batch: 1) { $0 * 2 }
         XCTAssertEqual(result2, [84])
 
-        let result3 = try await array.asyncMap(batch: 10) { $0 * 2 }
+        let result3 = try await array.concurrentMap(batch: 10) { $0 * 2 }
         XCTAssertEqual(result3, [84])
 
-        let result4 = try await array.asyncMap(batch: 1000) { $0 * 2 }
+        let result4 = try await array.concurrentMap(batch: 1000) { $0 * 2 }
         XCTAssertEqual(result4, [84])
     }
 
@@ -29,7 +29,7 @@ final class ForkEdgeCaseTests: XCTestCase, @unchecked Sendable {
         let array = [1, 2, 3, 4, 5]
 
         // Batch size larger than array
-        let result = try await array.asyncMap(batch: 100) { $0 * 2 }
+        let result = try await array.concurrentMap(batch: 100) { $0 * 2 }
         XCTAssertEqual(result, [2, 4, 6, 8, 10])
     }
 
@@ -37,7 +37,7 @@ final class ForkEdgeCaseTests: XCTestCase, @unchecked Sendable {
         let array = [1, 2, 3, 4, 5]
 
         // Batch size 0 should still work (implementation-dependent behavior)
-        let result = try await array.asyncMap(batch: 0) { $0 * 2 }
+        let result = try await array.concurrentMap(batch: 0) { $0 * 2 }
         XCTAssertEqual(result, [2, 4, 6, 8, 10])
     }
 
@@ -47,15 +47,15 @@ final class ForkEdgeCaseTests: XCTestCase, @unchecked Sendable {
         let array: [Int] = []
 
         // Empty array through filter
-        let filtered = try await array.asyncFilter { $0 > 5 }
+        let filtered = try await array.concurrentFilter { $0 > 5 }
         XCTAssertEqual(filtered, [])
 
         // Empty array through map
-        let mapped = try await array.asyncMap { $0 * 2 }
+        let mapped = try await array.concurrentMap { $0 * 2 }
         XCTAssertEqual(mapped, [])
 
         // Empty array through compactMap
-        let compacted: [Int] = try await array.asyncCompactMap { $0 > 5 ? $0 : nil }
+        let compacted: [Int] = try await array.concurrentCompactMap { $0 > 5 ? $0 : nil }
         XCTAssertEqual(compacted, [])
     }
 
@@ -148,7 +148,7 @@ final class ForkEdgeCaseTests: XCTestCase, @unchecked Sendable {
         let array = [1, 2, 3, 4, 5]
 
         // Filter that removes all elements
-        let result = try await array.asyncFilter { _ in false }
+        let result = try await array.concurrentFilter { _ in false }
         XCTAssertEqual(result, [])
     }
 
@@ -156,7 +156,7 @@ final class ForkEdgeCaseTests: XCTestCase, @unchecked Sendable {
         let array = [1, 2, 3, 4, 5]
 
         // Filter that keeps all elements
-        let result = try await array.asyncFilter { _ in true }
+        let result = try await array.concurrentFilter { _ in true }
         XCTAssertEqual(result, [1, 2, 3, 4, 5])
     }
 
@@ -166,7 +166,7 @@ final class ForkEdgeCaseTests: XCTestCase, @unchecked Sendable {
         let array = [1, 2, 3, 4, 5]
 
         // CompactMap that returns nil for all elements
-        let result: [Int] = try await array.asyncCompactMap { _ in nil }
+        let result: [Int] = try await array.concurrentCompactMap { _ in nil }
         XCTAssertEqual(result, [])
     }
 
@@ -174,7 +174,7 @@ final class ForkEdgeCaseTests: XCTestCase, @unchecked Sendable {
         let array = [1, 2, 3, 4, 5]
 
         // CompactMap that returns values for all elements
-        let result: [Int] = try await array.asyncCompactMap { $0 * 2 }
+        let result: [Int] = try await array.concurrentCompactMap { $0 * 2 }
         XCTAssertEqual(result, [2, 4, 6, 8, 10])
     }
 
@@ -182,7 +182,7 @@ final class ForkEdgeCaseTests: XCTestCase, @unchecked Sendable {
         let array = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
         // CompactMap that returns values for even elements only
-        let result: [Int] = try await array.asyncCompactMap { $0 % 2 == 0 ? $0 * 2 : nil }
+        let result: [Int] = try await array.concurrentCompactMap { $0 % 2 == 0 ? $0 * 2 : nil }
         XCTAssertEqual(result, [4, 8, 12, 16, 20])
     }
 
@@ -205,7 +205,7 @@ final class ForkEdgeCaseTests: XCTestCase, @unchecked Sendable {
     func testForkedArray_nestedArrays() async throws {
         let arrays = [[1, 2], [3, 4], [5, 6]]
 
-        let result = try await arrays.asyncMap { innerArray in
+        let result = try await arrays.concurrentMap { innerArray in
             innerArray.map { $0 * 2 }
         }
 
@@ -215,7 +215,7 @@ final class ForkEdgeCaseTests: XCTestCase, @unchecked Sendable {
     func testForkedArray_dictionaryValues() async throws {
         let dict = ["a": 1, "b": 2, "c": 3]
 
-        let result = try await dict.asyncMap { (key, value) in
+        let result = try await dict.concurrentMap { (key, value) in
             "\(key):\(value * 2)"
         }
 

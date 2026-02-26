@@ -38,35 +38,71 @@ extension Sequence where Element: Sendable {
         try await forked(batch: batch, filter: { _ in true }, map: map)
     }
 
-    /// Returns an array containing the results of mapping the given closure over the sequence’s elements.
-    public func asyncMap<Output: Sendable>(
+    /// Concurrently returns an array containing the results of mapping the given closure over the sequence's elements in batches. Each batch is processed in parallel using a ``BatchedForkedArray``.
+    public func concurrentMap<Output: Sendable>(
         batch: UInt,
         _ transform: @Sendable @escaping (Element) async throws -> Output
     ) async throws -> [Output] {
         try await fork(batch: batch, map: transform).output()
     }
 
-    /// Returns an array containing the results, that aren't nil, of mapping the given closure over the sequence’s elements.
-    public func asyncCompactMap<Output: Sendable>(
+    /// Concurrently returns an array containing the non-nil results of mapping the given closure over the sequence's elements in batches. Each batch is processed in parallel using a ``BatchedForkedArray``.
+    public func concurrentCompactMap<Output: Sendable>(
         batch: UInt,
         _ transform: @Sendable @escaping (Element) async throws -> Output?
     ) async throws -> [Output] {
         try await fork(batch: batch, map: transform).output().compactMap { $0 }
     }
 
-    /// Returns an array containing only the true results from the given closure over the sequence’s elements.
-    public func asyncFilter(
+    /// Concurrently filters the sequence's elements in batches using the given closure. Each batch is evaluated in parallel using a ``BatchedForkedArray``.
+    public func concurrentFilter(
         batch: UInt,
         _ isIncluded: @Sendable @escaping (Element) async throws -> Bool
     ) async throws -> [Element] {
         try await fork(batch: batch, filter: isIncluded, map: identity).output()
     }
 
-    /// Calls the given closure for each of the elements in the Sequence. This function uses ``BatchedForkedArray`` and will be parallelized when possible.
+    /// Concurrently calls the given closure for each element in the sequence in batches. Each batch is processed in parallel using a ``BatchedForkedArray``.
+    public func concurrentForEach(
+        batch: UInt,
+        _ transform: @Sendable @escaping (Element) async throws -> Void
+    ) async throws {
+        _ = try await concurrentMap(batch: batch, transform)
+    }
+}
+
+// MARK: - Deprecated Aliases
+
+extension Sequence where Element: Sendable {
+    @available(*, deprecated, renamed: "concurrentMap")
+    public func asyncMap<Output: Sendable>(
+        batch: UInt,
+        _ transform: @Sendable @escaping (Element) async throws -> Output
+    ) async throws -> [Output] {
+        try await concurrentMap(batch: batch, transform)
+    }
+
+    @available(*, deprecated, renamed: "concurrentCompactMap")
+    public func asyncCompactMap<Output: Sendable>(
+        batch: UInt,
+        _ transform: @Sendable @escaping (Element) async throws -> Output?
+    ) async throws -> [Output] {
+        try await concurrentCompactMap(batch: batch, transform)
+    }
+
+    @available(*, deprecated, renamed: "concurrentFilter")
+    public func asyncFilter(
+        batch: UInt,
+        _ isIncluded: @Sendable @escaping (Element) async throws -> Bool
+    ) async throws -> [Element] {
+        try await concurrentFilter(batch: batch, isIncluded)
+    }
+
+    @available(*, deprecated, renamed: "concurrentForEach")
     public func asyncForEach(
         batch: UInt,
         _ transform: @Sendable @escaping (Element) async throws -> Void
     ) async throws {
-        _ = try await asyncMap(batch: batch, transform)
+        try await concurrentForEach(batch: batch, transform)
     }
 }
