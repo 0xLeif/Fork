@@ -54,11 +54,16 @@ extension Sequence where Element: Sendable {
         try await fork(filter: isIncluded, map: identity).output()
     }
     
-    /// Concurrently calls the given closure for each element in the sequence. Each element is processed in parallel using a ``ForkedArray``.
+    /// Concurrently calls the given closure for each element in the sequence. Each element is processed in parallel using a task group.
     public func concurrentForEach(
         _ transform: @Sendable @escaping (Element) async throws -> Void
     ) async throws {
-        _ = try await concurrentMap(transform)
+        try await withThrowingTaskGroup(of: Void.self) { group in
+            for element in self {
+                group.addTask { try await transform(element) }
+            }
+            try await group.waitForAll()
+        }
     }
 
     // MARK: - Deprecated Aliases

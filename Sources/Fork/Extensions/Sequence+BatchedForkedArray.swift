@@ -62,12 +62,23 @@ extension Sequence where Element: Sendable {
         try await fork(batch: batch, filter: isIncluded, map: identity).output()
     }
 
-    /// Concurrently calls the given closure for each element in the sequence in batches. Each batch is processed in parallel using a ``BatchedForkedArray``.
+    /// Concurrently calls the given closure for each element in the sequence in batches. Each batch is processed in parallel using a task group.
     public func concurrentForEach(
         batch: UInt,
         _ transform: @Sendable @escaping (Element) async throws -> Void
     ) async throws {
-        _ = try await concurrentMap(batch: batch, transform)
+        let batchLimit = Swift.max(Int(batch), 1)
+        let elements = Array(self)
+
+        for batchStart in stride(from: 0, to: elements.count, by: batchLimit) {
+            let batchEnd = Swift.min(batchStart + batchLimit, elements.count)
+            try await withThrowingTaskGroup(of: Void.self) { group in
+                for element in elements[batchStart ..< batchEnd] {
+                    group.addTask { try await transform(element) }
+                }
+                try await group.waitForAll()
+            }
+        }
     }
 
     // MARK: - Deprecated Aliases
