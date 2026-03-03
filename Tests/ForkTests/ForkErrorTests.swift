@@ -69,7 +69,7 @@ final class ForkErrorTests: XCTestCase, @unchecked Sendable {
         let array = Array(0..<100)
 
         do {
-            _ = try await array.asyncMap { value -> Int in
+            _ = try await array.concurrentMap { value -> Int in
                 if value == 50 {
                     throw TestError.mapFailed
                 }
@@ -87,7 +87,7 @@ final class ForkErrorTests: XCTestCase, @unchecked Sendable {
         let array = Array(0..<100)
 
         do {
-            _ = try await array.asyncFilter { value -> Bool in
+            _ = try await array.concurrentFilter { value -> Bool in
                 if value == 50 {
                     throw TestError.filterFailed
                 }
@@ -107,7 +107,7 @@ final class ForkErrorTests: XCTestCase, @unchecked Sendable {
         let array = Array(0..<100)
 
         do {
-            _ = try await array.asyncMap(batch: 10) { value -> Int in
+            _ = try await array.concurrentMap(batch: 10) { value -> Int in
                 if value == 50 {
                     throw TestError.mapFailed
                 }

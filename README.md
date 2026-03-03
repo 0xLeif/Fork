@@ -49,7 +49,7 @@ The above code will now download all three photos at the same time. When all the
 Now, using Fork we could simplify this to just a couple of lines!
 
 ```swift
-let photos = try await photoNames.asyncMap(downloadPhoto(named:))
+let photos = try await photoNames.concurrentMap(downloadPhoto(named:))
 show(photos)
 ```
 

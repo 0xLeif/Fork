@@ -176,7 +176,7 @@ final class ForkRaceConditionTests: XCTestCase, @unchecked Sendable {
         let array = Array(0..<100)
 
         // Each element should be processed independently
-        try await array.asyncForEach { value in
+        try await array.concurrentForEach { value in
             await collector.append(value * 2)
         }
 
