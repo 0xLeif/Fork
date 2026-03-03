@@ -46,7 +46,7 @@ public struct BatchedForkedArray<Value: Sendable, Output: Sendable>: Sendable {
         var batchedOutput: [[Output]] = []
 
         for batch in batchedArray {
-            let batchedValues = try await batch.asyncFilter(filter).asyncMap(map)
+            let batchedValues = try await batch.concurrentFilter(filter).concurrentMap(map)
 
             batchedOutput.append(batchedValues)
         }
@@ -63,7 +63,7 @@ public struct BatchedForkedArray<Value: Sendable, Output: Sendable>: Sendable {
                 do {
                     for batch in batchedArray {
                         try Task.checkCancellation()
-                        let batchedValues = try await batch.asyncFilter(filter).asyncMap(map)
+                        let batchedValues = try await batch.concurrentFilter(filter).concurrentMap(map)
                         continuation.yield(batchedValues)
                     }
                     continuation.finish()

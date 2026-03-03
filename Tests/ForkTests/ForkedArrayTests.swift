@@ -17,7 +17,7 @@ class ForkedArrayTests: XCTestCase {
     }
     
     func testForkedArray_ForEach() async throws {
-        try await ["Hello", " ", "World", "!"].asyncForEach { print($0) }
+        try await ["Hello", " ", "World", "!"].concurrentForEach { print($0) }
     }
     
     func testForkedArray_none() async throws {
@@ -35,7 +35,7 @@ class ForkedArrayTests: XCTestCase {
         let photoNames = ["one"]
         @Sendable func isValidPhoto(named: String) async -> Bool { true }
         
-        let photos = try await photoNames.asyncFilter(isValidPhoto(named:))
+        let photos = try await photoNames.concurrentFilter(isValidPhoto(named:))
         
         XCTAssertEqual(photos, photoNames)
     }
@@ -55,7 +55,7 @@ class ForkedArrayTests: XCTestCase {
         let photoNames = ["one", "two", "three"]
         @Sendable func downloadPhoto(named: String) async -> String { named }
         
-        let photos = try await photoNames.asyncMap(downloadPhoto(named:))
+        let photos = try await photoNames.concurrentMap(downloadPhoto(named:))
         XCTAssertEqual(photos, photoNames)
     }
     
@@ -77,7 +77,7 @@ class ForkedArrayTests: XCTestCase {
             return number.description
         }
         
-        let compactedArray = try await photoNames.asyncCompactMap(asyncFilter(number:))
+        let compactedArray = try await photoNames.concurrentCompactMap(asyncFilter(number:))
         
         XCTAssertEqual(compactedArray.count, photoNames.count / 2)
     }
@@ -95,7 +95,7 @@ class ForkedArrayTests: XCTestCase {
     func testForkedArraySet() async throws {
         let set = Set(0 ..< 9)
         
-        let outputArray = try await set.asyncMap(identity)
+        let outputArray = try await set.concurrentMap(identity)
         
         XCTAssertEqual(outputArray, Array(set))
     }

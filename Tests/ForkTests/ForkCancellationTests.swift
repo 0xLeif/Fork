@@ -70,7 +70,7 @@ final class ForkCancellationTests: XCTestCase, @unchecked Sendable {
         let array = Array(0..<1000)
 
         let task = Task {
-            try await array.asyncMap(batch: 10) { value -> Int in
+            try await array.concurrentMap(batch: 10) { value -> Int in
                 try await Task.sleep(for: .milliseconds(10))
                 return value * 2
             }

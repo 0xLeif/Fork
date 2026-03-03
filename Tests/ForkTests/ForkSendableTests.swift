@@ -112,7 +112,7 @@ final class ForkSendableTests: XCTestCase, @unchecked Sendable {
 
         let points = [Point(x: 1, y: 2), Point(x: 3, y: 4), Point(x: 5, y: 6)]
 
-        let result = try await points.asyncMap { point in
+        let result = try await points.concurrentMap { point in
             Point(x: point.x * 2, y: point.y * 2)
         }
 
@@ -194,7 +194,7 @@ final class ForkSendableTests: XCTestCase, @unchecked Sendable {
             Outer(inner: Inner(value: 3), name: "third")
         ]
 
-        let result = try await items.asyncMap { outer in
+        let result = try await items.concurrentMap { outer in
             Outer(inner: Inner(value: outer.inner.value * 2), name: outer.name.uppercased())
         }
 
